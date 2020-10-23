@@ -3,14 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion versions.compile_version
 
     defaultConfig {
         applicationId "br.com.victorcs.app"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion versions.min_sdk_version
+        targetSdkVersion versions.target_sdk_version
+        versionCode versions.version_code
+        versionName versions.version_name
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -34,15 +34,15 @@ android {
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
-    implementation "androidx.biometric:biometric:$biometric_version"
-    implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-    implementation "androidx.core:core-ktx:$core_ktx_version"
-    implementation "androidx.fragment:fragment-ktx:$fragment_ktx_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
-    implementation "com.google.code.gson:gson:$gson_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    testImplementation "junit:junit:$junit_versoin"
-    androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    implementation deps.androidx.appcompat
+    implementation deps.androidx.biometric
+    implementation deps.androidx.contraint
+    implementation deps.androidx.core_ktx
+    implementation deps.androidx.fragment_ktx
+    implementation deps.androidx.lifecycle
+    implementation deps.gson
+    implementation deps.kotlin
+    testImplementation deps.junit
+    androidTestImplementation deps.android_junit
+    androidTestImplementation deps.espresso
 }
