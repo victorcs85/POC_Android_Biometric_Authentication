@@ -34,13 +34,15 @@ android {
 }
 
 dependencies {
-    api project(':biometricAuth')
+    implementation project(':biometricAuth')
     implementation deps.androidx.appcompat
     implementation deps.androidx.biometric
     implementation deps.androidx.constraint
     implementation deps.androidx.core_ktx
     implementation deps.androidx.fragment_ktx
     implementation deps.androidx.lifecycle
+    implementation deps.koin.koin_android
+    implementation deps.koin.koin_lifecycle
     implementation deps.gson
     implementation deps.kotlin
     testImplementation deps.junit
