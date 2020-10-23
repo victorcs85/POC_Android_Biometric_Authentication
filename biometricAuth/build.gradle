@@ -1,8 +1,9 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+
     compileSdkVersion versions.compile_version
 
     defaultConfig {
@@ -11,30 +12,21 @@ android {
         targetSdkVersion versions.target_sdk_version
         versionCode versions.version_code
         versionName versions.version_name
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    viewBinding {
-        enabled = true
-    }
-    compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
 
 dependencies {
-    api project(':biometricAuth')
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
     implementation deps.androidx.appcompat
     implementation deps.androidx.biometric
     implementation deps.androidx.constraint
@@ -46,4 +38,5 @@ dependencies {
     testImplementation deps.junit
     androidTestImplementation deps.android_junit
     androidTestImplementation deps.espresso_core
+
 }
