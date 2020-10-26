@@ -1,19 +1,22 @@
-package br.com.victorcs.app
+package br.com.victorcs.app.view
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.inputmethod.EditorInfo
-import androidx.activity.viewModels
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.lifecycle.Observer
-import br.com.victorcs.app.view.EnableBiometricLoginActivity
+import br.com.victorcs.app.R
+import br.com.victorcs.app.utils.SampleAppUser
+import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.CIPHERTEXT_WRAPPER
+import br.com.victorcs.biometricauth.CryptographyManager
 import br.com.victorcs.biometricauth.SHARED_PREFS_FILENAME
-import com.example.biometricloginsample.databinding.ActivityLoginBinding
+import kotlinx.android.synthetic.main.activity_login.*
+import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 
 /**
  * 1) after entering "valid" username and password, login button becomes enabled
@@ -21,8 +24,7 @@ import com.example.biometricloginsample.databinding.ActivityLoginBinding
  *   - a) if no template exists, then ask user to register template
  *   - b) if template exists, ask user to confirm by entering username & password
  */
-class LoginActivity : AppCompatActivity() {
-    private val TAG = "LoginActivity"
+class LoginActivity : AppCompatActivity(), ILoginContract.View {
     private lateinit var biometricPrompt: BiometricPrompt
     private val cryptographyManager = CryptographyManager()
     private val ciphertextWrapper
@@ -32,14 +34,15 @@ class LoginActivity : AppCompatActivity() {
             Context.MODE_PRIVATE,
             CIPHERTEXT_WRAPPER
         )
-    private lateinit var binding: ActivityLoginBinding
-    private val loginWithPasswordViewModel by viewModels<LoginWithPasswordViewModel>()
+
+    private val presenter by inject<ILoginContract.Presenter> { parametersOf(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.useBiometrics.setOnClickListener {
+        setContentView(R.layout.activity_login)
+        presenter.init()
+
+       /* binding.useBiometrics.setOnClickListener {
             if (ciphertextWrapper != null) {
                 showBiometricPromptForDecryption()
             } else {
@@ -48,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
         }
         if (ciphertextWrapper == null) {
             setupForLoginWithPassword()
-        }
+        }*/
     }
 
     /**
@@ -67,6 +70,59 @@ class LoginActivity : AppCompatActivity() {
                 updateApp(getString(R.string.already_signedin))
             }
         }
+    }
+
+    override fun setupView() {
+        login?.setOnClickListener {
+            presenter.validadeLogin(
+                username?.text?.toString().orEmpty(),
+                password?.text?.toString().orEmpty()
+            )
+        }
+
+        username?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                presenter.validateUser(editable?.toString().orEmpty())
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
+
+        password?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                presenter.validatePass(editable?.toString().orEmpty())
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
+
+        use_biometrics?.setOnClickListener {
+            if (ciphertextWrapper != null) {
+                showBiometricPromptForDecryption()
+            } else {
+                startActivity(Intent(this, EnableBiometricLoginActivity::class.java))
+            }
+        }
+    }
+
+    override fun showUserError() {
+        username?.error = getString(R.string.username_error)
+    }
+
+    override fun showPassError() {
+        password?.error = getString(R.string.password_error)
+    }
+
+    override fun hideUserError() {
+        username?.error = null
+    }
+
+    override fun hidePassError() {
+        password?.error = null
     }
 
     // BIOMETRICS SECTION
@@ -106,9 +162,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // USERNAME + PASSWORD SECTION
-
-    private fun setupForLoginWithPassword() {
+    /*private fun setupForLoginWithPassword() {
         loginWithPasswordViewModel.loginWithPasswordFormState.observe(this, Observer { formState ->
             val loginState = formState ?: return@Observer
             when (loginState) {
@@ -128,38 +182,9 @@ class LoginActivity : AppCompatActivity() {
                 )
             }
         })
-        binding.username.doAfterTextChanged {
-            loginWithPasswordViewModel.onLoginDataChanged(
-                binding.username.text.toString(),
-                binding.password.text.toString()
-            )
-        }
-        binding.password.doAfterTextChanged {
-            loginWithPasswordViewModel.onLoginDataChanged(
-                binding.username.text.toString(),
-                binding.password.text.toString()
-            )
-        }
-        binding.password.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_DONE ->
-                    loginWithPasswordViewModel.login(
-                        binding.username.text.toString(),
-                        binding.password.text.toString()
-                    )
-            }
-            false
-        }
-        binding.login.setOnClickListener {
-            loginWithPasswordViewModel.login(
-                binding.username.text.toString(),
-                binding.login.text.toString()
-            )
-        }
-        Log.d(TAG, "Username ${SampleAppUser.username}; fake token ${SampleAppUser.fakeToken}")
-    }
+    }*/
 
     private fun updateApp(successMsg: String) {
-        binding.success.text = successMsg
+        success?.text = successMsg
     }
 }

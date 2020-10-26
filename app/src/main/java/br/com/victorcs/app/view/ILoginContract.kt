@@ -1,13 +1,12 @@
 package br.com.victorcs.app.view
 
-object IEnableBiometricLoginContract {
+object ILoginContract {
     interface View {
         fun setupView()
         fun showUserError()
         fun showPassError()
         fun hideUserError()
         fun hidePassError()
-        fun showBiometricPromptForEncryption()
     }
 
     interface Presenter {

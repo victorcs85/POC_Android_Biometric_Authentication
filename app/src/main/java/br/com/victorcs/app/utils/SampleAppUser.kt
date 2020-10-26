@@ -1,4 +1,4 @@
-package br.com.victorcs.app
+package br.com.victorcs.app.utils
 
 object SampleAppUser {
     var fakeToken: String? = null

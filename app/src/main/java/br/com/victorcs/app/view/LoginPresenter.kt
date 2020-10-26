@@ -1,7 +1,7 @@
 package br.com.victorcs.app.view
 
-class EnableBiometricLoginPresenter(private val view: IEnableBiometricLoginContract.View)
-    : IEnableBiometricLoginContract.Presenter {
+class LoginPresenter(private val view: ILoginContract.View)
+    : ILoginContract.Presenter {
 
     private var isValidLogin = false
 
@@ -26,7 +26,6 @@ class EnableBiometricLoginPresenter(private val view: IEnableBiometricLoginContr
     }
 
     override fun validadeLogin(userValue: String, passValue: String) {
-        //TODO validação backend
-        view.showBiometricPromptForEncryption()
+        TODO("Not yet implemented")
     }
 }

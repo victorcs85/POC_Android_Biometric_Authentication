@@ -3,12 +3,12 @@ package br.com.victorcs.app.view
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.core.widget.addTextChangedListener
 import br.com.victorcs.app.R
-import br.com.victorcs.app.SampleAppUser
+import br.com.victorcs.app.utils.SampleAppUser
 import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.CIPHERTEXT_WRAPPER
 import br.com.victorcs.biometricauth.CryptographyManager
@@ -45,13 +45,25 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
             )
         }
 
-        username?.addTextChangedListener {text: Editable? ->
-            presenter.validateUser(text?.toString().orEmpty())
-        }
+        username?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                presenter.validateUser(editable?.toString().orEmpty())
+            }
 
-        password?.addTextChangedListener {text: Editable? ->
-            presenter.validatePass(text?.toString().orEmpty())
-        }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
+
+        password?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                presenter.validatePass(editable?.toString().orEmpty())
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
 
     }
 
@@ -71,8 +83,7 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         password?.error = null
     }
 
-    //region private
-    private fun showBiometricPromptForEncryption() {
+    override fun showBiometricPromptForEncryption() {
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
             val secretKeyName = getString(R.string.secret_key_name)
@@ -85,6 +96,7 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         }
     }
 
+    //region private
     private fun encryptAndStoreServerToken(authResult: BiometricPrompt.AuthenticationResult) {
         authResult.cryptoObject?.cipher?.apply {
             SampleAppUser.fakeToken?.let { token ->

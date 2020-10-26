@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme"
 >
         <activity android:name=".view.EnableBiometricLoginActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".view.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
