@@ -1,12 +1,10 @@
-package br.com.victorcs.app.view
+package br.com.victorcs.app.view.enable
+
+import br.com.victorcs.app.view.base.IBaseView
 
 object IEnableBiometricLoginContract {
-    interface View {
+    interface View: IBaseView {
         fun setupView()
-        fun showUserError()
-        fun showPassError()
-        fun hideUserError()
-        fun hidePassError()
         fun showBiometricPromptForEncryption()
     }
 
@@ -14,6 +12,6 @@ object IEnableBiometricLoginContract {
         fun init()
         fun validateUser(userValue: String)
         fun validatePass(passValue: String)
-        fun validadeLogin(userValue: String, passValue: String)
+        fun validateLogin(userValue: String, passValue: String)
     }
 }

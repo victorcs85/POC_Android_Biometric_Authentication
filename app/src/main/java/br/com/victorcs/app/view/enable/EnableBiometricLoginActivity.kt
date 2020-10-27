@@ -1,6 +1,7 @@
-package br.com.victorcs.app.view
+package br.com.victorcs.app.view.enable
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import br.com.victorcs.app.R
+import br.com.victorcs.app.utils.ChangeBiometricUtils
 import br.com.victorcs.app.utils.SampleAppUser
 import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.CIPHERTEXT_WRAPPER
@@ -26,20 +28,13 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_enable_biometric_login)
         presenter.init()
-        /*loginViewModel.loginResult.observe(this, Observer {
-            val loginResult = it ?: return@Observer
-            if (loginResult.success) {
-                showBiometricPromptForEncryption()
-            }
-        })*/
-
     }
 
     override fun setupView() {
         cancel?.setOnClickListener { finish() }
 
         authorize?.setOnClickListener {
-            presenter.validadeLogin(
+            presenter.validateLogin(
                 username?.text?.toString().orEmpty(),
                 password?.text?.toString().orEmpty()
             )
@@ -100,7 +95,6 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
     private fun encryptAndStoreServerToken(authResult: BiometricPrompt.AuthenticationResult) {
         authResult.cryptoObject?.cipher?.apply {
             SampleAppUser.fakeToken?.let { token ->
-//                Log.d(TAG, "The token from server is $token")
                 val encryptedServerTokenWrapper = cryptographyManager.encryptData(token, this)
                 cryptographyManager.persistCiphertextWrapperToSharedPrefs(
                     encryptedServerTokenWrapper,

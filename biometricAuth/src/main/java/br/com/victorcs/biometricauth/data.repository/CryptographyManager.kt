@@ -1,8 +1,12 @@
 package br.com.victorcs.biometricauth
 
 import android.content.Context
+import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import java.nio.charset.Charset
 import java.security.KeyStore
@@ -38,10 +42,13 @@ interface CryptographyManager {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 fun CryptographyManager(): CryptographyManager = CryptographyManagerImpl()
 
+@RequiresApi(Build.VERSION_CODES.N)
 private class CryptographyManagerImpl : CryptographyManager {
 
+    private val TAG = "CryptographyManagerImpl"
     private val KEY_SIZE = 256
     private val ANDROID_KEYSTORE = "AndroidKeyStore"
     private val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
@@ -51,7 +58,11 @@ private class CryptographyManagerImpl : CryptographyManager {
     override fun getInitializedCipherForEncryption(keyName: String): Cipher {
         val cipher = getCipher()
         val secretKey = getOrCreateSecretKey(keyName)
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        } catch (e: KeyPermanentlyInvalidatedException) {
+            Log.e(TAG, e.toString())
+        }
         return cipher
     }
 
@@ -61,7 +72,12 @@ private class CryptographyManagerImpl : CryptographyManager {
     ): Cipher {
         val cipher = getCipher()
         val secretKey = getOrCreateSecretKey(keyName)
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, initializationVector))
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, initializationVector))
+        } catch (e: KeyPermanentlyInvalidatedException) {
+            Log.e(TAG, e.toString())
+            getInitializedCipherForEncryption(keyName)
+        }
         return cipher
     }
 
@@ -80,6 +96,7 @@ private class CryptographyManagerImpl : CryptographyManager {
         return Cipher.getInstance(transformation)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun getOrCreateSecretKey(keyName: String): SecretKey {
         // If Secretkey was previously created for that keyName, then grab and return it.
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
@@ -96,6 +113,7 @@ private class CryptographyManagerImpl : CryptographyManager {
             setEncryptionPaddings(ENCRYPTION_PADDING)
             setKeySize(KEY_SIZE)
             setUserAuthenticationRequired(true)
+//            .setInvalidatedByBiometricEnrollment(true)
         }
 
         val keyGenParams = paramsBuilder.build()
@@ -103,7 +121,11 @@ private class CryptographyManagerImpl : CryptographyManager {
             KeyProperties.KEY_ALGORITHM_AES,
             ANDROID_KEYSTORE
         )
-        keyGenerator.init(keyGenParams)
+        try {
+            keyGenerator.init(keyGenParams)
+        } catch (e: KeyPermanentlyInvalidatedException) {
+            Log.e(TAG, e.toString())
+        }
         return keyGenerator.generateKey()
     }
 

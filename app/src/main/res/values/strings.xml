@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">app</string>
+    <string name="app_name">POC Biometria</string>
     <string name="username_hint">Informe seu CPF</string>
     <string name="username_error">CPF inválido</string>
     <string name="password">Informe sua senha</string>
