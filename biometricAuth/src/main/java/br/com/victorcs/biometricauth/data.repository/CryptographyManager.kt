@@ -40,6 +40,8 @@ interface CryptographyManager {
         prefKey: String
     ): CiphertextWrapper?
 
+    fun clear(keyName: String)
+
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -113,7 +115,7 @@ private class CryptographyManagerImpl : CryptographyManager {
             setEncryptionPaddings(ENCRYPTION_PADDING)
             setKeySize(KEY_SIZE)
             setUserAuthenticationRequired(true)
-//            .setInvalidatedByBiometricEnrollment(true)
+//            .setInvalidatedByBiometricEnrollment(true) //if you use setUserAuthenticationRequired comment this line, use one or another
         }
 
         val keyGenParams = paramsBuilder.build()
@@ -148,6 +150,13 @@ private class CryptographyManagerImpl : CryptographyManager {
     ): CiphertextWrapper? {
         val json = context.getSharedPreferences(filename, mode).getString(prefKey, null)
         return Gson().fromJson(json, CiphertextWrapper::class.java)
+    }
+
+    override fun clear(keyName: String){
+        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
+        keyStore.load(null) // Keystore must be loaded before it can be accessed
+        keyStore.deleteEntry(keyName)
+        //getCiphertextWrapperFromSharedPrefs
     }
 }
 

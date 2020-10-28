@@ -9,9 +9,10 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 
-object ChangeBiometricUtils {
+object ChangedBiometricUtils {
     @RequiresApi(Build.VERSION_CODES.M)
-    fun getFingerprintInfo(context: Context) {
+    fun getFingerprintInfo(context: Context): MutableList<String> {
+        val result = mutableListOf<String>()
         try {
             val fingerprintManager =
                 context.getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
@@ -25,6 +26,7 @@ object ChangeBiometricUtils {
                 for (i in (obj as List<*>).indices) {
                     val item = obj[i]
                     if (item != null) {
+                        result.add("FingerId: " + getFingerId.invoke(item))
                         Log.e("LOGGGGGGGG", "fkie4. fingerId: " + getFingerId.invoke(item))
                     }
                 }
@@ -38,5 +40,6 @@ object ChangeBiometricUtils {
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
         }
+        return result
     }
 }

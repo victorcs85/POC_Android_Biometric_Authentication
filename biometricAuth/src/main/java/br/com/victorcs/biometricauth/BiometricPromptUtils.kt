@@ -38,7 +38,6 @@ object BiometricPromptUtils {
         BiometricPrompt.PromptInfo.Builder().apply {
             setTitle(activity.getString(R.string.prompt_info_title))
             setSubtitle(activity.getString(R.string.prompt_info_subtitle))
-            setDescription(activity.getString(R.string.prompt_info_description))
             setConfirmationRequired(false)
             setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
         }.build()

@@ -10,8 +10,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".view.enable.EnableBiometricLoginActivity" />
-        <activity android:name=".view.login.LoginActivity">
+        <activity android:name=".view.enable.EnableBiometricLoginActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.login.LoginActivity" />
+        </activity>
+
+        <activity android:name=".view.settings.SettingsActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".view.login.LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -3,5 +3,6 @@
     <string name="username_hint">Informe seu CPF</string>
     <string name="username_error">CPF inválido</string>
     <string name="password">Informe sua senha</string>
+    <string name="menu">Configurações</string>
     <string name="password_error">Senha tem no mínimo 6 caractéres</string>
 </resources>

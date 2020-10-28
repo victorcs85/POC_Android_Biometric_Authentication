@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".view.enable.EnableBiometricLoginActivity">
 
+    <include layout="@layout/toolbar" />
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -16,7 +18,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/description"

@@ -1,21 +1,21 @@
 package br.com.victorcs.app.view.enable
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import br.com.victorcs.app.R
-import br.com.victorcs.app.utils.ChangeBiometricUtils
 import br.com.victorcs.app.utils.SampleAppUser
 import br.com.victorcs.biometricauth.BiometricPromptUtils
-import br.com.victorcs.biometricauth.CIPHERTEXT_WRAPPER
+import br.com.victorcs.app.utils.CIPHERTEXT_WRAPPER
 import br.com.victorcs.biometricauth.CryptographyManager
-import br.com.victorcs.biometricauth.SHARED_PREFS_FILENAME
+import br.com.victorcs.app.utils.SHARED_PREFS_FILENAME
 import kotlinx.android.synthetic.main.activity_enable_biometric_login.*
+import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
@@ -30,7 +30,22 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         presenter.init()
     }
 
+    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
+        android.R.id.home-> {
+            onBackPressed()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     override fun setupView() {
+
+        toolbar?.let {
+            setSupportActionBar(it)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+        }
+
         cancel?.setOnClickListener { finish() }
 
         authorize?.setOnClickListener {
