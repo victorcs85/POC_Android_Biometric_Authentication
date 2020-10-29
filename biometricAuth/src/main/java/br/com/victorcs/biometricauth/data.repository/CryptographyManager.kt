@@ -14,6 +14,7 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.OAEPParameterSpec
 
 @RequiresApi(Build.VERSION_CODES.N)
 fun CryptographyManager(): ICryptographyManager = CryptographyManagerImpl()
@@ -41,15 +42,21 @@ private class CryptographyManagerImpl : ICryptographyManager {
 
     override fun getInitializedCipherForDecryption(
         keyName: String,
-        initializationVector: ByteArray
-    ): Cipher {
+        initializationVector: ByteArray,
+        context: Context,
+        filename: String,
+        mode: Int,
+        reAuthAction: () -> Unit
+    ): Cipher? {
         val cipher = getCipher()
         val secretKey = getOrCreateSecretKey(keyName)
         try {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, initializationVector))
         } catch (e: KeyPermanentlyInvalidatedException) {
             Log.e(TAG, e.toString())
-            getInitializedCipherForEncryption(keyName)
+            clear(keyName, context, filename, mode) //TODO -
+            reAuthAction.invoke()
+            return null
         }
         return cipher
     }
@@ -86,7 +93,7 @@ private class CryptographyManagerImpl : ICryptographyManager {
             setEncryptionPaddings(ENCRYPTION_PADDING)
             setKeySize(KEY_SIZE)
             setUserAuthenticationRequired(true)
-//            .setInvalidatedByBiometricEnrollment(true) //if you use setUserAuthenticationRequired comment this line, use one or another
+//            setInvalidatedByBiometricEnrollment(true) //if you use setUserAuthenticationRequired comment this line, use one or another
         }
 
         val keyGenParams = paramsBuilder.build()

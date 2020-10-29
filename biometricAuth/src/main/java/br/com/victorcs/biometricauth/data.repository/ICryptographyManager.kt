@@ -6,7 +6,14 @@ import javax.crypto.Cipher
 interface ICryptographyManager {
     fun getInitializedCipherForEncryption(keyName: String): Cipher
 
-    fun getInitializedCipherForDecryption(keyName: String, initializationVector: ByteArray): Cipher
+    fun getInitializedCipherForDecryption(
+        keyName: String,
+        initializationVector: ByteArray,
+        context: Context,
+        filename: String,
+        mode: Int,
+        reAuthAction: () -> Unit
+    ): Cipher?
 
     fun encryptData(plaintext: String, cipher: Cipher): CiphertextWrapper
 

@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView.OnEditorActionListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import br.com.victorcs.app.R
-import br.com.victorcs.app.utils.CIPHERTEXT_WRAPPER
-import br.com.victorcs.app.utils.SHARED_PREFS_FILENAME
-import br.com.victorcs.app.utils.SampleAppUser
+import br.com.victorcs.app.utils.*
 import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_enable_biometric_login.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
+
 
 class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginContract.View {
     private lateinit var cryptographyManager: ICryptographyManager
@@ -50,31 +51,42 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         cancel?.setOnClickListener { finish() }
 
         authorize?.setOnClickListener {
-            presenter.validateLogin(
-                username?.text?.toString().orEmpty(),
-                password?.text?.toString().orEmpty()
-            )
+            submitAction()
         }
 
-        username?.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(editable: Editable?) {
-                presenter.validateUser(editable?.toString().orEmpty())
-            }
+        username?.apply {
+            requestFocus()
+            showKeyboard(this)
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(editable: Editable?) {
+                    presenter.validateUser(editable?.toString().orEmpty())
+                }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-        })
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            })
+        }
 
-        password?.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(editable: Editable?) {
-                presenter.validatePass(editable?.toString().orEmpty())
-            }
+        password?.apply{
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(editable: Editable?) {
+                    presenter.validatePass(editable?.toString().orEmpty())
+                }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-        })
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            })
+
+            setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    submitAction()
+                    return@OnEditorActionListener true
+                }
+                false
+            })
+        }
 
     }
 
@@ -108,6 +120,14 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
     }
 
     //region private
+    private fun submitAction() {
+        presenter.validateLogin(
+            username?.text?.toString().orEmpty(),
+            password?.text?.toString().orEmpty()
+        )
+        hideKeyboard(username)
+    }
+
     private fun encryptAndStoreServerToken(authResult: BiometricPrompt.AuthenticationResult) {
         authResult.cryptoObject?.cipher?.apply {
             SampleAppUser.fakeToken?.let { token ->

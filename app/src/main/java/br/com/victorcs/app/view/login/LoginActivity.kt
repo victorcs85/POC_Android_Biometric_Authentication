@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -109,7 +110,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                 if (ciphertextWrapper != null) {
                     showBiometricPromptForDecryption()
                 } else {
-                    startActivity(Intent(this, EnableBiometricLoginActivity::class.java))
+                    callEnableBiometric()
                 }
             }
         } else {
@@ -118,14 +119,6 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
         }
 
         info?.text = setupInfoResult()
-    }
-
-    private fun setupUseBiometricVisibility(canAuthenticate: Int) {
-        use_biometrics?.visibility =
-            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
-                SettingsUtils.loadUseBiometricSettings(this@LoginActivity)
-            )
-                View.VISIBLE else View.GONE
     }
 
     override fun showUserError() {
@@ -162,51 +155,88 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
                 val secretKeyName = getString(R.string.secret_key_name)
                 val cipher = cryptographyManager.getInitializedCipherForDecryption(
-                    secretKeyName, textWrapper.initializationVector
-                )
-                biometricPrompt =
-                    BiometricPromptUtils.createBiometricPrompt(
-                        this,
-                        ::decryptServerTokenFromStorage
-                    )
-                val promptInfo = BiometricPromptUtils.createPromptInfo(this)
-                try {
-                    biometricPrompt.authenticate(
-                        promptInfo,
-                        BiometricPrompt.CryptoObject(cipher)
-                    )//erro ao add novo finger
-                } catch (e: Exception) {
-                    Log.e("biometric_prompt", e.toString())
+                    secretKeyName, textWrapper.initializationVector, this@LoginActivity,
+                    getString(R.string.secret_key_name),
+                    Context.MODE_PRIVATE
+                ) {
+                    callEnableBiometric()
+                    return@getInitializedCipherForDecryption
+                }
+                if(cipher != null) {
+                    biometricPrompt =
+                        BiometricPromptUtils.createBiometricPrompt(
+                            this@LoginActivity,
+                            ::decryptServerTokenFromStorage
+                        )
+                    val promptInfo = BiometricPromptUtils.createPromptInfo(this@LoginActivity)
+                    try {
+                        biometricPrompt.authenticate(
+                            promptInfo,
+                            BiometricPrompt.CryptoObject(cipher)
+                        )//erro ao add novo finger
+                    } catch (e: Exception) {
+                        Log.e("biometric_prompt", e.toString())
+                        showToast(e.toString())
+                    }
                 }
             }
         }
     }
 
     private fun decryptServerTokenFromStorage(authResult: BiometricPrompt.AuthenticationResult) {
-        ciphertextWrapper?.let { textWrapper ->
-            authResult.cryptoObject?.cipher?.let {
-                val plaintext =
-                    cryptographyManager.decryptData(textWrapper.ciphertext, it)
-                SampleAppUser.fakeToken = plaintext
-                updateApp(getString(R.string.already_signedin))
+        try {
+            ciphertextWrapper?.let { textWrapper ->
+                authResult.cryptoObject?.cipher?.let {
+                    val plaintext =
+                        cryptographyManager.decryptData(textWrapper.ciphertext, it)
+                    SampleAppUser.fakeToken = plaintext
+                    updateApp(getString(R.string.already_signedin))
+                }
             }
+        } catch (e: java.lang.Exception) {
+            Log.e("ERROR", e.toString())
+            showToast(e.toString())
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun updateApp(successMsg: String) {
-        success?.text = successMsg
+        success?.text = successMsg.plus(" ${SampleAppUser.fakeToken}")
+        scrollToDown()
+    }
+
+    private fun scrollToDown(){
+        scrollView.post {
+            scrollView.fullScroll(View.FOCUS_DOWN)
+        }
     }
 
     private fun setupInfoResult(): String {
-        var result = ""
-        checkFingerIdChanges()?.forEach {
-            result = result.plus(it + "\n")
-        }
+        var result = "Resultados:\n"
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
         val hasBiometric =
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) "DISPONÍVEL" else "NÃO"
-        result = result.plus("Biometria disponível? $hasBiometric")
+        result = result.plus("Biometria disponível? $hasBiometric\n")
+        checkFingerIdChanges()?.forEach {
+            result = result.plus(it + "\n")
+        }
+
         return result
+    }
+
+    private fun callEnableBiometric() {
+        startActivity(Intent(this, EnableBiometricLoginActivity::class.java))
+    }
+
+    private fun setupUseBiometricVisibility(canAuthenticate: Int) {
+        use_biometrics?.visibility =
+            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
+                SettingsUtils.loadUseBiometricSettings(this@LoginActivity)
+            )
+                View.VISIBLE else View.GONE
     }
 
     //region use case 1, check change finger has changed in the SO- test
