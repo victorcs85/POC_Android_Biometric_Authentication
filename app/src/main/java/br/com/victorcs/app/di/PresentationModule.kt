@@ -1,6 +1,5 @@
 package br.com.victorcs.app.di
 
-import br.com.victorcs.app.view.base.IBaseView
 import br.com.victorcs.app.view.base.IValidate
 import br.com.victorcs.app.view.base.ValidatePresenter
 import br.com.victorcs.app.view.enable.EnableBiometricLoginPresenter

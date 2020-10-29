@@ -1,4 +1,4 @@
-package br.com.victorcs.biometricauth
+package br.com.victorcs.biometricauth.data.repository
 
 import android.content.Context
 import android.os.Build
@@ -15,40 +15,11 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-interface CryptographyManager {
-
-    fun getInitializedCipherForEncryption(keyName: String): Cipher
-
-    fun getInitializedCipherForDecryption(keyName: String, initializationVector: ByteArray): Cipher
-
-    fun encryptData(plaintext: String, cipher: Cipher): CiphertextWrapper
-
-    fun decryptData(ciphertext: ByteArray, cipher: Cipher): String
-
-    fun persistCiphertextWrapperToSharedPrefs(
-        ciphertextWrapper: CiphertextWrapper,
-        context: Context,
-        filename: String,
-        mode: Int,
-        prefKey: String
-    )
-
-    fun getCiphertextWrapperFromSharedPrefs(
-        context: Context,
-        filename: String,
-        mode: Int,
-        prefKey: String
-    ): CiphertextWrapper?
-
-    fun clear(keyName: String)
-
-}
+@RequiresApi(Build.VERSION_CODES.N)
+fun CryptographyManager(): ICryptographyManager = CryptographyManagerImpl()
 
 @RequiresApi(Build.VERSION_CODES.N)
-fun CryptographyManager(): CryptographyManager = CryptographyManagerImpl()
-
-@RequiresApi(Build.VERSION_CODES.N)
-private class CryptographyManagerImpl : CryptographyManager {
+private class CryptographyManagerImpl : ICryptographyManager {
 
     private val TAG = "CryptographyManagerImpl"
     private val KEY_SIZE = 256
@@ -152,11 +123,16 @@ private class CryptographyManagerImpl : CryptographyManager {
         return Gson().fromJson(json, CiphertextWrapper::class.java)
     }
 
-    override fun clear(keyName: String){
+    override fun clear(
+        keyName: String,
+        context: Context,
+        filename: String,
+        mode: Int
+    ) {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
         keyStore.load(null) // Keystore must be loaded before it can be accessed
         keyStore.deleteEntry(keyName)
-        //getCiphertextWrapperFromSharedPrefs
+        context.getSharedPreferences(filename, mode).edit().clear().apply()
     }
 }
 

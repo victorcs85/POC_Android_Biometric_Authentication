@@ -9,18 +9,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import br.com.victorcs.app.R
+import br.com.victorcs.app.utils.CIPHERTEXT_WRAPPER
+import br.com.victorcs.app.utils.SHARED_PREFS_FILENAME
 import br.com.victorcs.app.utils.SampleAppUser
 import br.com.victorcs.biometricauth.BiometricPromptUtils
-import br.com.victorcs.app.utils.CIPHERTEXT_WRAPPER
-import br.com.victorcs.biometricauth.CryptographyManager
-import br.com.victorcs.app.utils.SHARED_PREFS_FILENAME
+import br.com.victorcs.biometricauth.data.repository.CryptographyManager
+import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import kotlinx.android.synthetic.main.activity_enable_biometric_login.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginContract.View {
-    private lateinit var cryptographyManager: CryptographyManager
+    private lateinit var cryptographyManager: ICryptographyManager
 
     private val presenter by inject<IEnableBiometricLoginContract.Presenter> { parametersOf(this) }
 
@@ -30,8 +31,8 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
         presenter.init()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
-        android.R.id.home-> {
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        android.R.id.home -> {
             onBackPressed()
             true
         }

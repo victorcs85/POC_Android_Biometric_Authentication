@@ -5,7 +5,7 @@
     <string name="prompt_info_use_app_password">Usar CPF e senha</string>
     <string name="secret_key_name">biometric_sample_encryption_key</string>
     <string name="btn_login">Login</string>
-    <string name="btn_biometric_authorization">Usar a biometria para login</string>
+    <string name="btn_biometric_authorization">Autenticar com biometria</string>
     <string name="btn_without_biometric_authorization">Sem  biometria</string>
     <string name="enable_biometric_login">Login por biometria</string>
     <string name="desc_biometrics_authorization">Insira o cpf e senha para confirmar login por biometria.</string>

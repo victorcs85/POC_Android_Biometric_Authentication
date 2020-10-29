@@ -7,7 +7,7 @@ object SettingsUtils {
     private fun getSharedPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_FILENAME, Context.MODE_PRIVATE)
 
-    fun loadUseBiometricSettings(context: Context) : Boolean {
+    fun loadUseBiometricSettings(context: Context): Boolean {
         val sharedPreferences = getSharedPrefs(context)
         return sharedPreferences.getBoolean(SHARED_PREFS_USE_BIOMETRIC_SETTINGS, true)
     }

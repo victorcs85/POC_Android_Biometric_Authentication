@@ -18,7 +18,7 @@ import br.com.victorcs.app.utils.*
 import br.com.victorcs.app.view.enable.EnableBiometricLoginActivity
 import br.com.victorcs.app.view.settings.SettingsActivity
 import br.com.victorcs.biometricauth.BiometricPromptUtils
-import br.com.victorcs.biometricauth.CryptographyManager
+import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
@@ -144,12 +144,12 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
         password?.error = null
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
-            R.id.action_settings -> {
-                callSettings()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_settings -> {
+            callSettings()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun callSettings() {
@@ -200,10 +200,11 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
     private fun setupInfoResult(): String {
         var result = ""
         checkFingerIdChanges()?.forEach {
-            result = result.plus(it+"\n")
+            result = result.plus(it + "\n")
         }
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        val hasBiometric = if(canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS)  "DISPONÍVEL" else "NÃO"
+        val hasBiometric =
+            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) "DISPONÍVEL" else "NÃO"
         result = result.plus("Biometria disponível? $hasBiometric")
         return result
     }
@@ -218,9 +219,9 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
     //endregion
 
     //test faceID - only on biometric 1.1.0-beta01, without work face id at 9.0
-   /* private fun canAuthenticateWithStrongBiometrics(): Boolean {
-        return BiometricManager.from(this)
-            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
-    }*/
+    /* private fun canAuthenticateWithStrongBiometrics(): Boolean {
+         return BiometricManager.from(this)
+             .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+     }*/
     //endregion
 }
