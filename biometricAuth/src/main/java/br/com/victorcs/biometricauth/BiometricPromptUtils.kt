@@ -5,9 +5,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 
-object BiometricPromptUtils {
-    private const val TAG = "BiometricPromptUtils"
-    fun createBiometricPrompt(
+class BiometricPromptUtils: IBiometricPrompt {
+
+    companion object {
+        private const val TAG = "BiometricPromptUtils"
+    }
+
+    override fun createBiometricPrompt(
         activity: AppCompatActivity,
         processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit
     ): BiometricPrompt {
@@ -34,7 +38,7 @@ object BiometricPromptUtils {
         return BiometricPrompt(activity, executor, callback)
     }
 
-    fun createPromptInfo(activity: AppCompatActivity): BiometricPrompt.PromptInfo =
+    override fun createPromptInfo(activity: AppCompatActivity): BiometricPrompt.PromptInfo =
         BiometricPrompt.PromptInfo.Builder().apply {
             setTitle(activity.getString(R.string.prompt_info_title))
             setSubtitle(activity.getString(R.string.prompt_info_subtitle))

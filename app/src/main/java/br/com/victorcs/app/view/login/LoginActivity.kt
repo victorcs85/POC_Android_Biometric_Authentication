@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,26 +17,28 @@ import br.com.victorcs.app.R
 import br.com.victorcs.app.utils.*
 import br.com.victorcs.app.view.enable.EnableBiometricLoginActivity
 import br.com.victorcs.app.view.settings.SettingsActivity
-import br.com.victorcs.biometricauth.BiometricPromptUtils
-import br.com.victorcs.biometricauth.data.repository.CryptographyManager
+import br.com.victorcs.biometricauth.IBiometricPrompt
+import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
+import timber.log.Timber
 
 
 class LoginActivity : AppCompatActivity(), ILoginContract.View {
     private lateinit var biometricPrompt: BiometricPrompt
-    private val cryptographyManager = CryptographyManager()
-    private val ciphertextWrapper
+    private val cipherTextWrapper
         get() = cryptographyManager.getCiphertextWrapperFromSharedPrefs(
             applicationContext,
             SHARED_PREFS_FILENAME,
             Context.MODE_PRIVATE,
-            CIPHERTEXT_WRAPPER
+            CIPHER_TEXT_WRAPPER
         )
 
     private val presenter by inject<ILoginContract.Presenter> { parametersOf(this) }
+    private val biometricPromptUtils by inject<IBiometricPrompt> { parametersOf(this) }
+    private val cryptographyManager  by inject<ICryptographyManager> { parametersOf(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +51,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
     override fun onResume() {
         super.onResume()
 
-        if (ciphertextWrapper != null) {
+        if (cipherTextWrapper != null) {
             if (SampleAppUser.fakeToken == null) {
                 showBiometricPromptForDecryption()
             } else {
@@ -107,7 +108,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
             setupUseBiometricVisibility(canAuthenticate)
 
             use_biometrics?.setOnClickListener {
-                if (ciphertextWrapper != null) {
+                if (cipherTextWrapper != null) {
                     showBiometricPromptForDecryption()
                 } else {
                     callEnableBiometric()
@@ -150,7 +151,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
     }
 
     private fun showBiometricPromptForDecryption() {
-        ciphertextWrapper?.let { textWrapper ->
+        cipherTextWrapper?.let { textWrapper ->
             val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
                 val secretKeyName = getString(R.string.secret_key_name)
@@ -164,18 +165,18 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                 }
                 if(cipher != null) {
                     biometricPrompt =
-                        BiometricPromptUtils.createBiometricPrompt(
+                        biometricPromptUtils.createBiometricPrompt(
                             this@LoginActivity,
                             ::decryptServerTokenFromStorage
                         )
-                    val promptInfo = BiometricPromptUtils.createPromptInfo(this@LoginActivity)
+                    val promptInfo = biometricPromptUtils.createPromptInfo(this@LoginActivity)
                     try {
                         biometricPrompt.authenticate(
                             promptInfo,
                             BiometricPrompt.CryptoObject(cipher)
-                        )//erro ao add novo finger
+                        )
                     } catch (e: Exception) {
-                        Log.e("biometric_prompt", e.toString())
+                        Timber.e(e.toString())
                         showToast(e.toString())
                     }
                 }
@@ -185,7 +186,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
 
     private fun decryptServerTokenFromStorage(authResult: BiometricPrompt.AuthenticationResult) {
         try {
-            ciphertextWrapper?.let { textWrapper ->
+            cipherTextWrapper?.let { textWrapper ->
                 authResult.cryptoObject?.cipher?.let {
                     val plaintext =
                         cryptographyManager.decryptData(textWrapper.ciphertext, it)
@@ -194,7 +195,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                 }
             }
         } catch (e: java.lang.Exception) {
-            Log.e("ERROR", e.toString())
+            Timber.e(e.toString())
             showToast(e.toString())
         }
     }

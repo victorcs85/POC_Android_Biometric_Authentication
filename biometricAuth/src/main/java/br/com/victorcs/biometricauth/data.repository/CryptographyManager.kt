@@ -14,7 +14,6 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.OAEPParameterSpec
 
 @RequiresApi(Build.VERSION_CODES.N)
 fun CryptographyManager(): ICryptographyManager = CryptographyManagerImpl()
@@ -22,12 +21,14 @@ fun CryptographyManager(): ICryptographyManager = CryptographyManagerImpl()
 @RequiresApi(Build.VERSION_CODES.N)
 private class CryptographyManagerImpl : ICryptographyManager {
 
-    private val TAG = "CryptographyManagerImpl"
-    private val KEY_SIZE = 256
-    private val ANDROID_KEYSTORE = "AndroidKeyStore"
-    private val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
-    private val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
-    private val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
+    companion object {
+        private const val TAG = "CryptographyManagerImpl"
+        private const val KEY_SIZE = 256
+        private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+        private const val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
+        private const val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
+        private const val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
+    }
 
     override fun getInitializedCipherForEncryption(keyName: String): Cipher {
         val cipher = getCipher()
@@ -54,7 +55,7 @@ private class CryptographyManagerImpl : ICryptographyManager {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, initializationVector))
         } catch (e: KeyPermanentlyInvalidatedException) {
             Log.e(TAG, e.toString())
-            clear(keyName, context, filename, mode) //TODO -
+            clear(keyName, context, filename, mode)
             reAuthAction.invoke()
             return null
         }
@@ -78,12 +79,10 @@ private class CryptographyManagerImpl : ICryptographyManager {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun getOrCreateSecretKey(keyName: String): SecretKey {
-        // If Secretkey was previously created for that keyName, then grab and return it.
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
-        keyStore.load(null) // Keystore must be loaded before it can be accessed
+        keyStore.load(null)
         keyStore.getKey(keyName, null)?.let { return it as SecretKey }
 
-        // if you reach here, then a new SecretKey must be generated for that keyName
         val paramsBuilder = KeyGenParameterSpec.Builder(
             keyName,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
@@ -137,7 +136,7 @@ private class CryptographyManagerImpl : ICryptographyManager {
         mode: Int
     ) {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
-        keyStore.load(null) // Keystore must be loaded before it can be accessed
+        keyStore.load(null)
         keyStore.deleteEntry(keyName)
         context.getSharedPreferences(filename, mode).edit().clear().apply()
     }

@@ -19,16 +19,14 @@ object ChangedBiometricUtils {
             val method: Method =
                 FingerprintManager::class.java.getDeclaredMethod("getEnrolledFingerprints")
             val obj: Any = method.invoke(fingerprintManager)
-            if (obj != null) {
-                val clazz =
-                    Class.forName("android.hardware.fingerprint.Fingerprint")
-                val getFingerId: Method = clazz.getDeclaredMethod("getFingerId")
-                for (i in (obj as List<*>).indices) {
-                    val item = obj[i]
-                    if (item != null) {
-                        result.add("FingerId: " + getFingerId.invoke(item))
-                        Log.e("LOGGGGGGGG", "fkie4. fingerId: " + getFingerId.invoke(item))
-                    }
+            val clazz =
+                Class.forName("android.hardware.fingerprint.Fingerprint")
+            val getFingerId: Method = clazz.getDeclaredMethod("getFingerId")
+            for (i in (obj as List<*>).indices) {
+                val item = obj[i]
+                if (item != null) {
+                    result.add("FingerId: " + getFingerId.invoke(item))
+                    Log.e("getFingerprintInfo", "fingerId: " + getFingerId.invoke(item))
                 }
             }
         } catch (e: NoSuchMethodException) {

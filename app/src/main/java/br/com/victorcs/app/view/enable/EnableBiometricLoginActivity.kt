@@ -13,6 +13,7 @@ import androidx.biometric.BiometricPrompt
 import br.com.victorcs.app.R
 import br.com.victorcs.app.utils.*
 import br.com.victorcs.biometricauth.BiometricPromptUtils
+import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import kotlinx.android.synthetic.main.activity_enable_biometric_login.*
@@ -25,6 +26,7 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
     private lateinit var cryptographyManager: ICryptographyManager
 
     private val presenter by inject<IEnableBiometricLoginContract.Presenter> { parametersOf(this) }
+    private val biometricPromptUtils by inject<IBiometricPrompt> { parametersOf(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,8 +115,8 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
             cryptographyManager = CryptographyManager()
             val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
             val biometricPrompt =
-                BiometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
-            val promptInfo = BiometricPromptUtils.createPromptInfo(this)
+                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
+            val promptInfo = biometricPromptUtils.createPromptInfo(this)
             biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
         }
     }
@@ -137,7 +139,7 @@ class EnableBiometricLoginActivity : AppCompatActivity(), IEnableBiometricLoginC
                     applicationContext,
                     SHARED_PREFS_FILENAME,
                     Context.MODE_PRIVATE,
-                    CIPHERTEXT_WRAPPER
+                    CIPHER_TEXT_WRAPPER
                 )
             }
         }
