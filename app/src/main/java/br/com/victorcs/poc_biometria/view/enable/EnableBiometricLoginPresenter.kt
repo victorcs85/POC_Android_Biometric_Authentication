@@ -1,6 +1,6 @@
-package br.com.victorcs.app.view.enable
+package br.com.victorcs.poc_biometria.view.enable
 
-import br.com.victorcs.app.view.base.IValidate
+import br.com.victorcs.poc_biometria.view.base.IValidate
 
 class EnableBiometricLoginPresenter(
     private val view: IEnableBiometricLoginContract.View,

@@ -1,4 +1,4 @@
-package br.com.victorcs.app.utils
+package br.com.victorcs.poc_biometria.utils
 
 import android.app.Activity
 import android.content.Context

@@ -1,4 +1,4 @@
-package br.com.victorcs.app.utils
+package br.com.victorcs.poc_biometria.utils
 
 import android.content.Context
 import android.content.SharedPreferences

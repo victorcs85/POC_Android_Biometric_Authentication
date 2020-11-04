@@ -1,11 +1,11 @@
-package br.com.victorcs.app.di
+package br.com.victorcs.poc_biometria.di
 
-import br.com.victorcs.app.view.base.IValidate
-import br.com.victorcs.app.view.base.ValidatePresenter
-import br.com.victorcs.app.view.enable.EnableBiometricLoginPresenter
-import br.com.victorcs.app.view.enable.IEnableBiometricLoginContract
-import br.com.victorcs.app.view.login.ILoginContract
-import br.com.victorcs.app.view.login.LoginPresenter
+import br.com.victorcs.poc_biometria.view.base.IValidate
+import br.com.victorcs.poc_biometria.view.base.ValidatePresenter
+import br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginPresenter
+import br.com.victorcs.poc_biometria.view.enable.IEnableBiometricLoginContract
+import br.com.victorcs.poc_biometria.view.login.ILoginContract
+import br.com.victorcs.poc_biometria.view.login.LoginPresenter
 import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager

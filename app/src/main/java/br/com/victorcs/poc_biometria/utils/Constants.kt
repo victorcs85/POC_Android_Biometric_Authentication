@@ -1,4 +1,4 @@
-package br.com.victorcs.app.utils
+package br.com.victorcs.poc_biometria.utils
 
 const val SHARED_PREFS_FILENAME = "biometric_prefs"
 const val SHARED_PREFS_USE_BIOMETRIC_SETTINGS = "use_biometric_settings"

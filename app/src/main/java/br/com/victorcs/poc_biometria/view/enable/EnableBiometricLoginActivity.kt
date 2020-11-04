@@ -1,4 +1,4 @@
-package br.com.victorcs.app.view.enable
+package br.com.victorcs.poc_biometria.view.enable
 
 import android.content.Context
 import android.os.Bundle
@@ -10,9 +10,8 @@ import android.widget.TextView.OnEditorActionListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import br.com.victorcs.app.R
-import br.com.victorcs.app.utils.*
-import br.com.victorcs.biometricauth.BiometricPromptUtils
+import br.com.victorcs.poc_biometria.R
+import br.com.victorcs.poc_biometria.utils.*
 import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager

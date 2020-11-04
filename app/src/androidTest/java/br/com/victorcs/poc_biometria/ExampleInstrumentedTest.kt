@@ -1,4 +1,4 @@
-package br.com.victorcs.app
+package br.com.victorcs.poc_biometria
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

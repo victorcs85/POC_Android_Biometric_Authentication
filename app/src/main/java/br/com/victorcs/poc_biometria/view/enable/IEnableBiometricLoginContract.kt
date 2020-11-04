@@ -1,6 +1,6 @@
-package br.com.victorcs.app.view.enable
+package br.com.victorcs.poc_biometria.view.enable
 
-import br.com.victorcs.app.view.base.IBaseView
+import br.com.victorcs.poc_biometria.view.base.IBaseView
 
 object IEnableBiometricLoginContract {
     interface View: IBaseView {

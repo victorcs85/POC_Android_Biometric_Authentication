@@ -1,6 +1,6 @@
-package br.com.victorcs.app.view.base
+package br.com.victorcs.poc_biometria.view.base
 
-import br.com.victorcs.app.utils.SampleAppUser
+import br.com.victorcs.poc_biometria.utils.SampleAppUser
 
 class ValidatePresenter : IValidate {
 

@@ -1,4 +1,4 @@
-package br.com.victorcs.app.view.settings
+package br.com.victorcs.poc_biometria.view.settings
 
 import android.content.Context
 import android.os.Bundle
@@ -6,10 +6,10 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
-import br.com.victorcs.app.R
-import br.com.victorcs.app.utils.SHARED_PREFS_FILENAME
-import br.com.victorcs.app.utils.SampleAppUser
-import br.com.victorcs.app.utils.SettingsUtils
+import br.com.victorcs.poc_biometria.R
+import br.com.victorcs.poc_biometria.utils.SHARED_PREFS_FILENAME
+import br.com.victorcs.poc_biometria.utils.SampleAppUser
+import br.com.victorcs.poc_biometria.utils.SettingsUtils
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.toolbar.*

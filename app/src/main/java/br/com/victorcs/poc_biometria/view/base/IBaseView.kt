@@ -1,4 +1,4 @@
-package br.com.victorcs.app.view.base
+package br.com.victorcs.poc_biometria.view.base
 
 interface IBaseView {
     fun showUserError()

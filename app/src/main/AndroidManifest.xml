@@ -1,26 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="br.com.victorcs.app">
+    package="br.com.victorcs.poc_biometria">
 
     <application
         android:allowBackup="false"
-        android:name=".App"
+        android:name="br.com.victorcs.poc_biometria.App"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".view.enable.EnableBiometricLoginActivity"
+        <activity android:name="br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.login.LoginActivity" />
+                android:value="br.com.victorcs.poc_biometria.view.login.LoginActivity" />
         </activity>
 
-        <activity android:name=".view.settings.SettingsActivity"
+        <activity android:name="br.com.victorcs.poc_biometria.view.settings.SettingsActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".view.login.LoginActivity"
+        <activity android:name="br.com.victorcs.poc_biometria.view.login.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

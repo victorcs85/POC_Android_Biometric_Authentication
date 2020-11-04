@@ -1,6 +1,6 @@
-package br.com.victorcs.app.view.login
+package br.com.victorcs.poc_biometria.view.login
 
-import br.com.victorcs.app.view.base.IBaseView
+import br.com.victorcs.poc_biometria.view.base.IBaseView
 
 object ILoginContract {
     interface View: IBaseView {

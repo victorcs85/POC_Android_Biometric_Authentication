@@ -1,4 +1,4 @@
-package br.com.victorcs.app.view.login
+package br.com.victorcs.poc_biometria.view.login
 
 import android.content.Context
 import android.content.Intent
@@ -13,10 +13,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import br.com.victorcs.app.R
-import br.com.victorcs.app.utils.*
-import br.com.victorcs.app.view.enable.EnableBiometricLoginActivity
-import br.com.victorcs.app.view.settings.SettingsActivity
+import br.com.victorcs.poc_biometria.R
+import br.com.victorcs.poc_biometria.utils.*
+import br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginActivity
+import br.com.victorcs.poc_biometria.view.settings.SettingsActivity
 import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import kotlinx.android.synthetic.main.activity_login.*

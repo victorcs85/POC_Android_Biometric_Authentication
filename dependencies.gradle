@@ -17,7 +17,9 @@ ext.versions = [
         lifecycle_version : '2.2.0',
         koin_version : '2.1.6',
         gradle_build_version: '3.6.2',
-        timber_version: '4.7.1'
+        timber_version: '4.7.1',
+        google_services_version: '4.3.4',
+        firebase_version: '2.3.0'
 ]
 
 ext.deps = [
@@ -41,5 +43,7 @@ ext.deps = [
         'junit' : "junit:junit:${versions.junit_versoin}",
         'android_junit' : "androidx.test.ext:junit:${versions.ext_junit_version}",
         'espresso_core' : "androidx.test.espresso:espresso-core:${versions.espresso_version}",
-        'timber' : "com.jakewharton.timber:timber:${versions.timber_version}"
+        'timber' : "com.jakewharton.timber:timber:${versions.timber_version}",
+        'google_services' : "com.google.gms:google-services:${versions.google_services_version}",
+        'firebase_gradle' : "com.google.firebase:firebase-crashlytics-gradle:${versions.firebase_version}"
 ]

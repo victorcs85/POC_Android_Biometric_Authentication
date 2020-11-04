@@ -1,4 +1,4 @@
-package br.com.victorcs.app
+package br.com.victorcs.poc_biometria
 
 import org.junit.Test
 

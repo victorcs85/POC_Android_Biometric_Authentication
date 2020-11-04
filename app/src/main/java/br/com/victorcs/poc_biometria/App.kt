@@ -1,7 +1,7 @@
-package br.com.victorcs.app
+package br.com.victorcs.poc_biometria
 
 import android.app.Application
-import br.com.victorcs.app.di.PresentationModule
+import br.com.victorcs.poc_biometria.di.PresentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
