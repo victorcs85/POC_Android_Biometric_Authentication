@@ -19,7 +19,9 @@ ext.versions = [
         gradle_build_version: '3.6.2',
         timber_version: '4.7.1',
         google_services_version: '4.3.4',
-        firebase_version: '2.3.0'
+        firebase_version: '2.3.0',
+        firebase_crashlytics_version: '17.2.2',
+        firebase_analytics_version: '18.0.0'
 ]
 
 ext.deps = [
@@ -45,5 +47,9 @@ ext.deps = [
         'espresso_core' : "androidx.test.espresso:espresso-core:${versions.espresso_version}",
         'timber' : "com.jakewharton.timber:timber:${versions.timber_version}",
         'google_services' : "com.google.gms:google-services:${versions.google_services_version}",
-        'firebase_gradle' : "com.google.firebase:firebase-crashlytics-gradle:${versions.firebase_version}"
+        'firebase_gradle' : "com.google.firebase:firebase-crashlytics-gradle:${versions.firebase_version}",
+
+        'firebase_crashlytics': "com.google.firebase:firebase-crashlytics:${versions.firebase_crashlytics_version}",
+        'firebase_analytics': "com.google.firebase:firebase-analytics:${versions.firebase_analytics_version}"
+
 ]

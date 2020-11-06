@@ -7,7 +7,7 @@ android {
     compileSdkVersion versions.compile_version
 
     defaultConfig {
-        applicationId "br.com.victorcs.app"
+        applicationId "br.com.victorcs.poc_biometria"
         minSdkVersion versions.min_sdk_version
         targetSdkVersion versions.target_sdk_version
         versionCode versions.version_code
@@ -46,12 +46,12 @@ dependencies {
     implementation deps.timber
 
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:25.12.0')
+//    implementation platform('com.google.firebase:firebase-bom:25.12.0')
 
     // Declare the dependencies for the Crashlytics and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation deps.firebase_crashlytics
+    implementation deps.firebase_analytics
 
     implementation deps.gson
     implementation deps.kotlin

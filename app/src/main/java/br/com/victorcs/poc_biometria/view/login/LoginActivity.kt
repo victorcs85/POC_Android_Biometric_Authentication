@@ -13,12 +13,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import br.com.victorcs.biometricauth.IBiometricPrompt
+import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import br.com.victorcs.poc_biometria.R
 import br.com.victorcs.poc_biometria.utils.*
 import br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginActivity
 import br.com.victorcs.poc_biometria.view.settings.SettingsActivity
-import br.com.victorcs.biometricauth.IBiometricPrompt
-import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
@@ -38,13 +38,12 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
 
     private val presenter by inject<ILoginContract.Presenter> { parametersOf(this) }
     private val biometricPromptUtils by inject<IBiometricPrompt> { parametersOf(this) }
-    private val cryptographyManager  by inject<ICryptographyManager> { parametersOf(this) }
+    private val cryptographyManager by inject<ICryptographyManager> { parametersOf(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         presenter.init()
-
 //        Log.d("StrongBiometrics", ""+canAuthenticateWithStrongBiometrics())
     }
 
@@ -163,7 +162,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                     callEnableBiometric()
                     return@getInitializedCipherForDecryption
                 }
-                if(cipher != null) {
+                if (cipher != null) {
                     biometricPrompt =
                         biometricPromptUtils.createBiometricPrompt(
                             this@LoginActivity,
@@ -209,7 +208,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
         scrollToDown()
     }
 
-    private fun scrollToDown(){
+    private fun scrollToDown() {
         scrollView.post {
             scrollView.fullScroll(View.FOCUS_DOWN)
         }

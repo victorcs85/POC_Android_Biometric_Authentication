@@ -21,7 +21,7 @@ class BiometricPromptUtils: IBiometricPrompt {
 
             override fun onAuthenticationError(errCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errCode, errString)
-                Log.d(TAG, "errCode is $errCode and errString is: $errString")
+                Log.d(TAG, "Code error: $errCode - Message error: $errString")
             }
 
             override fun onAuthenticationFailed() {
