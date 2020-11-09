@@ -6,10 +6,11 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -17,16 +18,18 @@ import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import br.com.victorcs.poc_biometria.R
 import br.com.victorcs.poc_biometria.utils.*
-import br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginActivity
+import br.com.victorcs.poc_biometria.view.base.BaseActivity
+import br.com.victorcs.poc_biometria.view.home.HomeActivity
 import br.com.victorcs.poc_biometria.view.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.fragment_info.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
 
 
-class LoginActivity : AppCompatActivity(), ILoginContract.View {
+class LoginActivity : BaseActivity(), ILoginContract.View {
     private lateinit var biometricPrompt: BiometricPrompt
     private val cipherTextWrapper
         get() = cryptographyManager.getCiphertextWrapperFromSharedPrefs(
@@ -53,13 +56,9 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
         if (cipherTextWrapper != null) {
             if (SampleAppUser.fakeToken == null) {
                 showBiometricPromptForDecryption()
-            } else {
-                updateApp(getString(R.string.already_signedin))
             }
         }
 
-        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        setupUseBiometricVisibility(canAuthenticate)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -77,6 +76,8 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                 username?.text?.toString().orEmpty(),
                 password?.text?.toString().orEmpty()
             )
+            hideKeyboard(username)
+            hideKeyboard(password)
         }
 
         username?.addTextChangedListener(object : TextWatcher {
@@ -99,26 +100,6 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
         })
 
-
-        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-            without_biometrics?.visibility = View.GONE
-
-            setupUseBiometricVisibility(canAuthenticate)
-
-            use_biometrics?.setOnClickListener {
-                if (cipherTextWrapper != null) {
-                    showBiometricPromptForDecryption()
-                } else {
-                    callEnableBiometric()
-                }
-            }
-        } else {
-            use_biometrics?.visibility = View.GONE
-            without_biometrics?.visibility = View.VISIBLE
-        }
-
-        info?.text = setupInfoResult()
     }
 
     override fun showUserError() {
@@ -142,7 +123,50 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
             callSettings()
             true
         }
+        R.id.action_info -> {
+            showBottomSheetInfo()
+            true
+        }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun showBiometricPromptForEncryption() {
+        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+            val secretKeyName = getString(R.string.secret_key_name)
+            val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
+            val biometricPrompt =
+                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
+            val promptInfo = biometricPromptUtils.createPromptInfo(this)
+            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+        }
+    }
+
+    private fun showBottomSheetInfo() {
+        // Modifica o comportamento do bottom sheet
+        // Permite que o usuário possa deslizar ele até o topo da tela.
+
+        // Modifica o comportamento do bottom sheet
+        // Permite que o usuário possa deslizar ele até o topo da tela.
+        val childLayoutParams = bottomSheet.layoutParams
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+
+        childLayoutParams.height = displayMetrics.heightPixels
+
+        bottomSheet.layoutParams = childLayoutParams
+
+        tvBiometricInfo?.let {
+            it.text = ""
+            it.text = getInfoResult()
+        }
+
+        tvBiometricIdsInfo?.let {
+            it.text = ""
+            it.text = getInfoIds()
+        }
+
     }
 
     private fun callSettings() {
@@ -159,7 +183,6 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                     getString(R.string.secret_key_name),
                     Context.MODE_PRIVATE
                 ) {
-                    callEnableBiometric()
                     return@getInitializedCipherForDecryption
                 }
                 if (cipher != null) {
@@ -190,7 +213,7 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
                     val plaintext =
                         cryptographyManager.decryptData(textWrapper.ciphertext, it)
                     SampleAppUser.fakeToken = plaintext
-                    updateApp(getString(R.string.already_signedin))
+                    callHome()
                 }
             }
         } catch (e: java.lang.Exception) {
@@ -203,50 +226,27 @@ class LoginActivity : AppCompatActivity(), ILoginContract.View {
         Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun updateApp(successMsg: String) {
-        success?.text = successMsg.plus(" ${SampleAppUser.fakeToken}")
-        scrollToDown()
+    private fun callHome() {
+        startActivity(Intent(this, HomeActivity::class.java))
+        finish()
     }
 
-    private fun scrollToDown() {
-        scrollView.post {
-            scrollView.fullScroll(View.FOCUS_DOWN)
+    private fun encryptAndStoreServerToken(authResult: BiometricPrompt.AuthenticationResult) {
+        authResult.cryptoObject?.cipher?.apply {
+            SampleAppUser.fakeToken?.let { token ->
+                val encryptedServerTokenWrapper = cryptographyManager.encryptData(token, this)
+                cryptographyManager.persistCiphertextWrapperToSharedPrefs(
+                    encryptedServerTokenWrapper,
+                    applicationContext,
+                    SHARED_PREFS_FILENAME,
+                    Context.MODE_PRIVATE,
+                    CIPHER_TEXT_WRAPPER
+                )
+
+                callHome()
+            }
         }
     }
-
-    private fun setupInfoResult(): String {
-        var result = "Resultados:\n"
-        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        val hasBiometric =
-            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) "DISPONÍVEL" else "NÃO"
-        result = result.plus("Biometria disponível? $hasBiometric\n")
-        checkFingerIdChanges()?.forEach {
-            result = result.plus(it + "\n")
-        }
-
-        return result
-    }
-
-    private fun callEnableBiometric() {
-        startActivity(Intent(this, EnableBiometricLoginActivity::class.java))
-    }
-
-    private fun setupUseBiometricVisibility(canAuthenticate: Int) {
-        use_biometrics?.visibility =
-            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
-                SettingsUtils.loadUseBiometricSettings(this@LoginActivity)
-            )
-                View.VISIBLE else View.GONE
-    }
-
-    //region use case 1, check change finger has changed in the SO- test
-    private fun checkFingerIdChanges(): MutableList<String>? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return ChangedBiometricUtils.getFingerprintInfo(this)
-        }
-        return null
-    }
-    //endregion
 
     //test faceID - only on biometric 1.1.0-beta01, without work face id at 9.0
     /* private fun canAuthenticateWithStrongBiometrics(): Boolean {

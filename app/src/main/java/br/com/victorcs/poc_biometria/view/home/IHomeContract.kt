@@ -1,9 +1,7 @@
-package br.com.victorcs.poc_biometria.view.enable
+package br.com.victorcs.poc_biometria.view.home
 
-import br.com.victorcs.poc_biometria.view.base.IBaseView
-
-object IEnableBiometricLoginContract {
-    interface View: IBaseView {
+object IHomeContract {
+    interface View {
         fun setupView()
         fun showBiometricPromptForEncryption()
     }

@@ -2,8 +2,8 @@ package br.com.victorcs.poc_biometria.di
 
 import br.com.victorcs.poc_biometria.view.base.IValidate
 import br.com.victorcs.poc_biometria.view.base.ValidatePresenter
-import br.com.victorcs.poc_biometria.view.enable.EnableBiometricLoginPresenter
-import br.com.victorcs.poc_biometria.view.enable.IEnableBiometricLoginContract
+import br.com.victorcs.poc_biometria.view.home.HomePresenter
+import br.com.victorcs.poc_biometria.view.home.IHomeContract
 import br.com.victorcs.poc_biometria.view.login.ILoginContract
 import br.com.victorcs.poc_biometria.view.login.LoginPresenter
 import br.com.victorcs.biometricauth.BiometricPromptUtils
@@ -34,8 +34,8 @@ object PresentationModule {
                 validate = get()
             )
         }
-        factory<IEnableBiometricLoginContract.Presenter> { (view: IEnableBiometricLoginContract.View) ->
-            EnableBiometricLoginPresenter(
+        factory<IHomeContract.Presenter> { (view: IHomeContract.View) ->
+            HomePresenter(
                 view = view,
                 validate = get()
             )

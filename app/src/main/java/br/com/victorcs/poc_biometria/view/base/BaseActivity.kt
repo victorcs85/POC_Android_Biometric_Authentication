@@ -1,0 +1,47 @@
+package br.com.victorcs.poc_biometria.view.base
+
+import android.os.Build
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import br.com.victorcs.poc_biometria.R
+import br.com.victorcs.poc_biometria.utils.ChangedBiometricUtils
+import br.com.victorcs.poc_biometria.utils.SettingsUtils
+
+open class BaseActivity: AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+    fun getInfoResult(): String {
+        var result = getString(R.string.results)
+        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
+        val hasBiometric =
+            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS)
+                getString(R.string.available) else getString(R.string.not)
+        val settingsResult = if(SettingsUtils.loadUseBiometricSettings(this))
+            getString(R.string.enabled) else getString(R.string.block)
+        result = result.plus( getString(R.string.biometric_app_enabled, hasBiometric) )
+        result = result.plus( getString(R.string.finger_ids, settingsResult) )
+
+        return result
+    }
+
+    fun getInfoIds(): String {
+        var result = getString(R.string.finger_ids)
+        checkFingerIdChanges()?.forEach {
+            result = result.plus(it + "\n")
+        }
+        return result
+    }
+
+    //region use case 1, check change finger has changed in the SO- test
+    private fun checkFingerIdChanges(): MutableList<String>? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ChangedBiometricUtils.getFingerprintInfo(this)
+        }
+        return null
+    }
+    //endregion
+}

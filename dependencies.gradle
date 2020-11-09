@@ -21,7 +21,8 @@ ext.versions = [
         google_services_version: '4.3.4',
         firebase_version: '2.3.0',
         firebase_crashlytics_version: '17.2.2',
-        firebase_analytics_version: '18.0.0'
+        firebase_analytics_version: '18.0.0',
+        android_design_version: '28.0.0'
 ]
 
 ext.deps = [
@@ -50,6 +51,7 @@ ext.deps = [
         'firebase_gradle' : "com.google.firebase:firebase-crashlytics-gradle:${versions.firebase_version}",
 
         'firebase_crashlytics': "com.google.firebase:firebase-crashlytics:${versions.firebase_crashlytics_version}",
-        'firebase_analytics': "com.google.firebase:firebase-analytics:${versions.firebase_analytics_version}"
+        'firebase_analytics': "com.google.firebase:firebase-analytics:${versions.firebase_analytics_version}",
+        'android_design' : "com.android.support:design:${versions.android_design_version}"
 
 ]

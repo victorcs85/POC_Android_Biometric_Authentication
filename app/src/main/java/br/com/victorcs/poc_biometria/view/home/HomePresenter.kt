@@ -1,11 +1,11 @@
-package br.com.victorcs.poc_biometria.view.enable
+package br.com.victorcs.poc_biometria.view.home
 
 import br.com.victorcs.poc_biometria.view.base.IValidate
 
-class EnableBiometricLoginPresenter(
-    private val view: IEnableBiometricLoginContract.View,
+class HomePresenter(
+    private val view: IHomeContract.View,
     private val validate: IValidate
-) : IEnableBiometricLoginContract.Presenter {
+) : IHomeContract.Presenter {
 
     private var isValidLogin = false
 

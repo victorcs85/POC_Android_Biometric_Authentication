@@ -3,6 +3,18 @@
     <string name="username_hint">Informe seu CPF</string>
     <string name="username_error">CPF inválido</string>
     <string name="password">Informe sua senha</string>
-    <string name="menu">Configurações</string>
+    <string name="menu_settings">Configurações</string>
+    <string name="menu_info">Informações</string>
+    <string name="menu_exit">Logout</string>
     <string name="password_error">Senha tem no mínimo 6 caractéres</string>
+
+    <string name="auth_result">Usuário autenticado, fake token:\n%1$s</string>
+    <string name="results">Resultados:\n</string>
+    <string name="available">Disponível</string>
+    <string name="not">Não</string>
+    <string name="enabled">Habilitado</string>
+    <string name="block">Bloqueado</string>
+    <string name="biometric_available">Biometria disponível?</string>
+    <string name="biometric_app_enabled">Biometria habilitado no app?\n%1$s\n</string>
+    <string name="finger_ids">Ids dos dedos recuperados:\n%1$s\n</string>
 </resources>
