@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
@@ -15,14 +15,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
 import br.com.victorcs.poc_biometria.R
-import br.com.victorcs.poc_biometria.utils.CIPHER_TEXT_WRAPPER
-import br.com.victorcs.poc_biometria.utils.SHARED_PREFS_FILENAME
-import br.com.victorcs.poc_biometria.utils.SampleAppUser
-import br.com.victorcs.poc_biometria.utils.hideKeyboard
+import br.com.victorcs.poc_biometria.utils.*
 import br.com.victorcs.poc_biometria.view.base.BaseActivity
 import br.com.victorcs.poc_biometria.view.home.HomeActivity
 import kotlinx.android.synthetic.main.activity_login.*
@@ -65,6 +61,10 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
 
     }
 
+    override fun onBackPressed() {
+        exitApp()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
@@ -89,8 +89,8 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
         })
 
-        password?.let{
-                it.addTextChangedListener(object : TextWatcher {
+        password?.let {
+            it.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(editable: Editable?) {
                     presenter.validatePass(editable?.toString().orEmpty())
                 }
@@ -146,7 +146,8 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
             val secretKeyName = getString(R.string.secret_key_name)
             val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            biometricPrompt = biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
+            biometricPrompt =
+                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
             val promptInfo = biometricPromptUtils.createPromptInfo(this)
             biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
         }
@@ -249,12 +250,15 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
             Context.MODE_PRIVATE,
             CIPHER_TEXT_WRAPPER
         )
-        callHome()
+
+        postDelay({ callHome() }, 500)
     }
 
     private fun checkShowBiometricLogin() {
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
+            SettingsUtils.loadUseBiometricSettings(this@LoginActivity)
+        ) {
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder.apply {
                 setTitle(getString(R.string.alert_title))
@@ -274,9 +278,15 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
             val secretKeyName = getString(R.string.secret_key_name)
             val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            biometricPromptUtils.createBiometricPrompt(this) { encryptFakeToken(secretKeyName, cipher) }
+            biometricPromptUtils.createBiometricPrompt(this) {
+                encryptFakeToken(
+                    secretKeyName,
+                    cipher
+                )
+            }
             val promptInfo = biometricPromptUtils.createPromptInfo(this)
-            biometricPrompt = biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
+            biometricPrompt =
+                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
             biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
         }
     }

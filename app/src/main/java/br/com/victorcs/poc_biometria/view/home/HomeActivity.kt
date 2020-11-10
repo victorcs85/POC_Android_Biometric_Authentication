@@ -24,7 +24,6 @@ import org.koin.core.parameter.parametersOf
 class HomeActivity : BaseActivity(), IHomeContract.View {
 
     private val presenter by inject<IHomeContract.Presenter> { parametersOf(this) }
-    private val biometricPromptUtils by inject<IBiometricPrompt> { parametersOf(this) }
     private val cryptographyManager by inject<ICryptographyManager> { parametersOf(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +37,10 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
         setupResults()
     }
 
+    override fun onBackPressed() {
+        exitApp()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home, menu)
         return true
@@ -45,10 +48,6 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
 
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-     /*   android.R.id.home -> {
-            onBackPressed()
-            true
-        }*/
         R.id.action_exit -> {
             cryptographyManager.clear(getString(R.string.secret_key_name),
                 applicationContext,
@@ -68,8 +67,6 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
 
         toolbar?.let {
             setSupportActionBar(it)
-//            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//            supportActionBar?.setDisplayShowHomeEnabled(true)
         }
 
         setupResults()

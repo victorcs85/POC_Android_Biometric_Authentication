@@ -2,6 +2,7 @@ package br.com.victorcs.poc_biometria.utils
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
@@ -17,4 +18,8 @@ fun Context.showKeyboard(view: View) {
         InputMethodManager.SHOW_FORCED,
         InputMethodManager.HIDE_IMPLICIT_ONLY
     )
+}
+
+fun postDelay( action: () -> Unit, time: Long ) {
+    Handler().postDelayed({ action.invoke() }, time)
 }

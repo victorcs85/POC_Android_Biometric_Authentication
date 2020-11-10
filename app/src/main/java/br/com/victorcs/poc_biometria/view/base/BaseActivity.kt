@@ -8,9 +8,11 @@ import androidx.biometric.BiometricManager
 import br.com.victorcs.poc_biometria.R
 import br.com.victorcs.poc_biometria.utils.ChangedBiometricUtils
 import br.com.victorcs.poc_biometria.utils.SettingsUtils
+import br.com.victorcs.poc_biometria.utils.postDelay
 import br.com.victorcs.poc_biometria.view.settings.SettingsActivity
+import kotlin.system.exitProcess
 
-open class BaseActivity: AppCompatActivity() {
+open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,10 +28,10 @@ open class BaseActivity: AppCompatActivity() {
         val hasBiometric =
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS)
                 getString(R.string.available) else getString(R.string.no)
-        val settingsResult = if(SettingsUtils.loadUseBiometricSettings(this))
+        val settingsResult = if (SettingsUtils.loadUseBiometricSettings(this))
             getString(R.string.enabled) else getString(R.string.block)
-        result = result.plus( getString(R.string.biometric_available, hasBiometric) ).plus("\n")
-        result = result.plus( getString(R.string.biometric_app_enabled, settingsResult) )
+        result = result.plus(getString(R.string.biometric_available, hasBiometric)).plus("\n")
+        result = result.plus(getString(R.string.biometric_app_enabled, settingsResult))
 
         return result
     }
@@ -40,6 +42,13 @@ open class BaseActivity: AppCompatActivity() {
             result = result.plus(it + "\n")
         }
         return result
+    }
+
+    fun exitApp() {
+        finish()
+        postDelay({
+            exitProcess(0)
+        }, 500)
     }
 
     //region use case 1, check change finger has changed in the SO- test
