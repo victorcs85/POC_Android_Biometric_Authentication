@@ -1,5 +1,7 @@
 package br.com.victorcs.poc_biometria.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import br.com.victorcs.poc_biometria.view.base.IValidate
 import br.com.victorcs.poc_biometria.view.base.ValidatePresenter
 import br.com.victorcs.poc_biometria.view.home.HomePresenter
@@ -14,6 +16,7 @@ import org.koin.dsl.module
 
 object PresentationModule {
 
+    @RequiresApi(Build.VERSION_CODES.N)
     val module = module {
 
         single<IValidate> {
@@ -36,8 +39,7 @@ object PresentationModule {
         }
         factory<IHomeContract.Presenter> { (view: IHomeContract.View) ->
             HomePresenter(
-                view = view,
-                validate = get()
+                view = view
             )
         }
 

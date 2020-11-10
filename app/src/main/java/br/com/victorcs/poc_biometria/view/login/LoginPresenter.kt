@@ -29,7 +29,7 @@ class LoginPresenter(
         }
     }
 
-    override fun validateLogin(userValue: String, passValue: String) {
-        validate.doFakeLogin(userValue, passValue, null)
+    override fun validateLogin(userValue: String, passValue: String, action: () -> Unit) {
+        validate.doFakeLogin(userValue, passValue, action)
     }
 }

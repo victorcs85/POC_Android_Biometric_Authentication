@@ -12,6 +12,6 @@ object ILoginContract {
         fun init()
         fun validateUser(userValue: String)
         fun validatePass(passValue: String)
-        fun validateLogin(userValue: String, passValue: String)
+        fun validateLogin(userValue: String, passValue: String, action: () -> Unit)
     }
 }

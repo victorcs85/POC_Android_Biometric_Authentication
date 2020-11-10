@@ -33,6 +33,11 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
         presenter.init()
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupResults()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home, menu)
         return true
@@ -52,6 +57,10 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
             callLogin()
             true
         }
+        R.id.action_settings -> {
+            callSettings()
+            true
+        }
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -63,6 +72,16 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
 //            supportActionBar?.setDisplayShowHomeEnabled(true)
         }
 
+        setupResults()
+    }
+
+    //region private
+    private fun callLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
+    private fun setupResults() {
         tvBiometricInfo?.let {
             it.text = ""
             it.text = getInfoResult().plus("\n").plus(getInfoIds())
@@ -73,39 +92,5 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
             it.text = getString(R.string.auth_result, SampleAppUser.fakeToken)
         }
     }
-
-    override fun showBiometricPromptForEncryption() {
-        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-            val secretKeyName = getString(R.string.secret_key_name)
-            val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            val biometricPrompt =
-                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
-            val promptInfo = biometricPromptUtils.createPromptInfo(this)
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
-        }
-    }
-
-    //region private
-    private fun callLogin() {
-        startActivity(Intent(this, LoginActivity::class.java))
-    }
-
-    private fun encryptAndStoreServerToken(authResult: BiometricPrompt.AuthenticationResult) {
-        authResult.cryptoObject?.cipher?.apply {
-            SampleAppUser.fakeToken?.let { token ->
-                val encryptedServerTokenWrapper = cryptographyManager.encryptData(token, this)
-                cryptographyManager.persistCiphertextWrapperToSharedPrefs(
-                    encryptedServerTokenWrapper,
-                    applicationContext,
-                    SHARED_PREFS_FILENAME,
-                    Context.MODE_PRIVATE,
-                    CIPHER_TEXT_WRAPPER
-                )
-            }
-        }
-        finish()
-    }
-
     //endregion
 }

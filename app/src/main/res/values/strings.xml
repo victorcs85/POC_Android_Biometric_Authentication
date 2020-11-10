@@ -9,12 +9,18 @@
     <string name="password_error">Senha tem no mínimo 6 caractéres</string>
 
     <string name="auth_result">Usuário autenticado, fake token:\n%1$s</string>
-    <string name="results">Resultados:\n</string>
+    <string name="results">Resultados:\n\n</string>
     <string name="available">Disponível</string>
-    <string name="not">Não</string>
+    <string name="no">Não</string>
     <string name="enabled">Habilitado</string>
     <string name="block">Bloqueado</string>
-    <string name="biometric_available">Biometria disponível?</string>
+    <string name="biometric_available">Biometria disponível?\n%1$s\n</string>
     <string name="biometric_app_enabled">Biometria habilitado no app?\n%1$s\n</string>
-    <string name="finger_ids">Ids dos dedos recuperados:\n%1$s\n</string>
+    <string name="finger_ids">Ids dos dedos recuperados:\n</string>
+
+    <string name="alert_title">Atenção</string>
+    <string name="alert_description">Deseja vincular biometria para efetuar o login?</string>
+    <string name="yes">Sim</string>
+
+    <string name="token_error">Ocorreu um erro ao autenticar</string>
 </resources>

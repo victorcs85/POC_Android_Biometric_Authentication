@@ -1,5 +1,6 @@
 package br.com.victorcs.poc_biometria.view.base
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,7 @@ import androidx.biometric.BiometricManager
 import br.com.victorcs.poc_biometria.R
 import br.com.victorcs.poc_biometria.utils.ChangedBiometricUtils
 import br.com.victorcs.poc_biometria.utils.SettingsUtils
+import br.com.victorcs.poc_biometria.view.settings.SettingsActivity
 
 open class BaseActivity: AppCompatActivity() {
 
@@ -14,16 +16,20 @@ open class BaseActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    fun callSettings() {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
     fun getInfoResult(): String {
         var result = getString(R.string.results)
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
         val hasBiometric =
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS)
-                getString(R.string.available) else getString(R.string.not)
+                getString(R.string.available) else getString(R.string.no)
         val settingsResult = if(SettingsUtils.loadUseBiometricSettings(this))
             getString(R.string.enabled) else getString(R.string.block)
-        result = result.plus( getString(R.string.biometric_app_enabled, hasBiometric) )
-        result = result.plus( getString(R.string.finger_ids, settingsResult) )
+        result = result.plus( getString(R.string.biometric_available, hasBiometric) ).plus("\n")
+        result = result.plus( getString(R.string.biometric_app_enabled, settingsResult) )
 
         return result
     }
