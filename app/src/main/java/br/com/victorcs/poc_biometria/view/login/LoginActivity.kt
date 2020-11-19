@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -40,6 +39,7 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         )
 
     private val presenter by inject<ILoginContract.Presenter> { parametersOf(this) }
+    private val firebaseUtils by inject<IFirebaseUtils> { parametersOf(this) }
     private val biometricPromptUtils by inject<IBiometricPrompt> { parametersOf(this) }
     private val cryptographyManager by inject<ICryptographyManager> { parametersOf(this) }
 
@@ -176,6 +176,7 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
                     getString(R.string.secret_key_name),
                     Context.MODE_PRIVATE
                 ) {
+                    showToast(getString(R.string.new_finger))
                     return@getInitializedCipherForDecryption
                 }
                 if (cipher != null) {
@@ -192,7 +193,8 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
                         )
                     } catch (e: Exception) {
                         Timber.e(e.toString())
-                        showToast(e.toString())
+                        firebaseUtils.logNonFatalLog(e)
+                        showToast(getString(R.string.error))
                     }
                 }
             }
@@ -211,12 +213,13 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
             }
         } catch (e: java.lang.Exception) {
             Timber.e(e.toString())
-            showToast(e.toString())
+            firebaseUtils.logNonFatalLog(e)
+            showToast(getString(R.string.error))
         }
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_LONG).show()
     }
 
     private fun callHome() {

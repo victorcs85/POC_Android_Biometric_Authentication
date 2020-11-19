@@ -17,6 +17,8 @@
     <string name="biometric_available">Biometria disponível?\n%1$s\n</string>
     <string name="biometric_app_enabled">Biometria habilitado no app?\n%1$s\n</string>
     <string name="finger_ids">Ids dos dedos recuperados:\n</string>
+    <string name="new_finger">Foi identificado um novo dedo. Favor efetuar novo login.</string>
+    <string name="error">Ops. Ocorreu um erro inesperado! Tente novamente mais tarde.</string>
 
     <string name="alert_title">Atenção</string>
     <string name="alert_description">Deseja vincular biometria para efetuar o login?</string>

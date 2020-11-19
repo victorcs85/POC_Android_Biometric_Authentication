@@ -12,6 +12,8 @@ import br.com.victorcs.biometricauth.BiometricPromptUtils
 import br.com.victorcs.biometricauth.IBiometricPrompt
 import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import br.com.victorcs.biometricauth.data.repository.ICryptographyManager
+import br.com.victorcs.poc_biometria.utils.FirebaseUtils
+import br.com.victorcs.poc_biometria.utils.IFirebaseUtils
 import org.koin.dsl.module
 
 object PresentationModule {
@@ -21,6 +23,10 @@ object PresentationModule {
 
         single<IValidate> {
             ValidatePresenter()
+        }
+
+        single<IFirebaseUtils> {
+            FirebaseUtils()
         }
 
         single<ICryptographyManager> {
