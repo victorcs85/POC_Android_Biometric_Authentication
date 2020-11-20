@@ -6,7 +6,9 @@ import androidx.biometric.BiometricPrompt
 interface IBiometricPrompt {
     fun createBiometricPrompt(
         activity: AppCompatActivity,
-        processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit
+        processError: (Int) -> Unit?,
+        processFailed: () -> Unit?,
+        processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit?
     ): BiometricPrompt
 
     fun createPromptInfo(activity: AppCompatActivity): BiometricPrompt.PromptInfo

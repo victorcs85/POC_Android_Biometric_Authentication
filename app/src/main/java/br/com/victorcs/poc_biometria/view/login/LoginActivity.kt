@@ -2,7 +2,6 @@ package br.com.victorcs.poc_biometria.view.login
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,7 +9,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -140,19 +138,6 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         else -> super.onOptionsItemSelected(item)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    override fun showBiometricPromptForEncryption() {
-        val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-            val secretKeyName = getString(R.string.secret_key_name)
-            val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            biometricPrompt =
-                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
-            val promptInfo = biometricPromptUtils.createPromptInfo(this)
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
-        }
-    }
-
     private fun showAlertInfo() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.apply {
@@ -169,6 +154,7 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
     private fun showBiometricPromptForDecryption() {
         cipherTextWrapper?.let { textWrapper ->
             val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
+            firebaseUtils.logBiometricCanAuthenticateReturn(canAuthenticate)
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
                 val secretKeyName = getString(R.string.secret_key_name)
                 val cipher = cryptographyManager.getInitializedCipherForDecryption(
@@ -183,10 +169,15 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
                     biometricPrompt =
                         biometricPromptUtils.createBiometricPrompt(
                             this@LoginActivity,
-                            ::decryptServerTokenFromStorage
+                            processSuccess = ::decryptServerTokenFromStorage,
+                            processError = ::logFirebaseErrorCode,
+                            processFailed = {}
                         )
                     val promptInfo = biometricPromptUtils.createPromptInfo(this@LoginActivity)
                     try {
+                        /*biometricPrompt.authenticate(
+                            promptInfo
+                        )*/ //via facial
                         biometricPrompt.authenticate(
                             promptInfo,
                             BiometricPrompt.CryptoObject(cipher)
@@ -281,17 +272,24 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
             val secretKeyName = getString(R.string.secret_key_name)
             val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            biometricPromptUtils.createBiometricPrompt(this) {
+            biometricPromptUtils.createBiometricPrompt(this, processSuccess ={
                 encryptFakeToken(
                     secretKeyName,
                     cipher
                 )
-            }
+            }, processFailed = {}, processError = ::logFirebaseErrorCode)
             val promptInfo = biometricPromptUtils.createPromptInfo(this)
             biometricPrompt =
-                biometricPromptUtils.createBiometricPrompt(this, ::encryptAndStoreServerToken)
+                biometricPromptUtils.createBiometricPrompt(this,
+                    processSuccess = ::encryptAndStoreServerToken, processFailed = {},
+                    processError = ::logFirebaseErrorCode)
+//            biometricPrompt.authenticate(promptInfo) //via facial
             biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
         }
+    }
+
+    private fun logFirebaseErrorCode(code: Int) {
+        firebaseUtils.logNonFatalLog(code.toString())
     }
 
     //test faceID - only on biometric 1.1.0-beta01, without work face id at 9.0

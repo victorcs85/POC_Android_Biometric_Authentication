@@ -1,5 +1,6 @@
 package br.com.victorcs.biometricauth
 
+import android.app.KeyguardManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
@@ -13,7 +14,9 @@ class BiometricPromptUtils: IBiometricPrompt {
 
     override fun createBiometricPrompt(
         activity: AppCompatActivity,
-        processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit
+        processError: (Int) -> Unit?,
+        processFailed: () -> Unit?,
+        processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit?
     ): BiometricPrompt {
         val executor = ContextCompat.getMainExecutor(activity)
 
@@ -22,11 +25,13 @@ class BiometricPromptUtils: IBiometricPrompt {
             override fun onAuthenticationError(errCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errCode, errString)
                 Log.d(TAG, "Code error: $errCode - Message error: $errString")
+                processError(errCode)
             }
 
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
                 Log.d(TAG, "Biometric authentication failed for unknown reason.")
+                processFailed()
             }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -43,6 +48,7 @@ class BiometricPromptUtils: IBiometricPrompt {
             setTitle(activity.getString(R.string.prompt_info_title))
             setSubtitle(activity.getString(R.string.prompt_info_subtitle))
             setConfirmationRequired(false)
+//                setDeviceCredentialAllowed(true)//via facial
             setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
         }.build()
 }

@@ -25,4 +25,6 @@
     <string name="yes">Sim</string>
 
     <string name="token_error">Ocorreu um erro ao autenticar</string>
+
+    <string name="device_log">Versão Android:%1$s \nSDK:%2$s \nAparelho:%3$s \nModelo:%4$s \nProduct:%5$s</string>
 </resources>

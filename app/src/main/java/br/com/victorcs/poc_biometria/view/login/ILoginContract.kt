@@ -5,7 +5,6 @@ import br.com.victorcs.poc_biometria.view.base.IBaseView
 object ILoginContract {
     interface View: IBaseView {
         fun setupView()
-        fun showBiometricPromptForEncryption()
     }
 
     interface Presenter {
