@@ -28,7 +28,7 @@ open class BaseActivity : AppCompatActivity() {
         val hasBiometric =
             if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS)
                 getString(R.string.available) else getString(R.string.no)
-        val settingsResult = if (SettingsUtils.loadUseBiometricSettings(this))
+        val settingsResult = if (SettingsUtils.getUseBiometricSettings(this))
             getString(R.string.enabled) else getString(R.string.block)
         result = result.plus(getString(R.string.biometric_available, hasBiometric)).plus("\n")
         result = result.plus(getString(R.string.biometric_app_enabled, settingsResult))

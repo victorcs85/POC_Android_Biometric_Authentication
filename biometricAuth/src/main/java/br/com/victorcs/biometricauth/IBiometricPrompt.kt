@@ -11,5 +11,5 @@ interface IBiometricPrompt {
         processSuccess: (BiometricPrompt.AuthenticationResult) -> Unit?
     ): BiometricPrompt
 
-    fun createPromptInfo(activity: AppCompatActivity): BiometricPrompt.PromptInfo
+    fun createPromptInfo(activity: AppCompatActivity, useFacial: Boolean): BiometricPrompt.PromptInfo
 }

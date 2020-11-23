@@ -2,17 +2,17 @@ package br.com.victorcs.poc_biometria.view.settings
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import br.com.victorcs.poc_biometria.R
 import br.com.victorcs.poc_biometria.utils.SHARED_PREFS_FILENAME
 import br.com.victorcs.poc_biometria.utils.SampleAppUser
 import br.com.victorcs.poc_biometria.utils.SettingsUtils
-import br.com.victorcs.biometricauth.data.repository.CryptographyManager
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.toolbar.*
+import timber.log.Timber
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -31,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
 
             isChecked =
                 (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
-                        SettingsUtils.loadUseBiometricSettings(this@SettingsActivity))
+                        SettingsUtils.getUseBiometricSettings(this@SettingsActivity))
 
             setOnCheckedChangeListener { _, isChecked ->
                 if (!isChecked) {
@@ -45,7 +45,7 @@ class SettingsActivity : AppCompatActivity() {
                         SampleAppUser.username = null
                         SampleAppUser.fakeToken = null
                     } catch (e: Exception) {
-                        Log.e("ERRO", e.toString())
+                        Timber.e(e)
                     }
                 }
                 SettingsUtils.updateUseBiometricSettings(

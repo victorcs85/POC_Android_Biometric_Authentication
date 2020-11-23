@@ -1,6 +1,5 @@
 package br.com.victorcs.biometricauth
 
-import android.app.KeyguardManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
@@ -43,12 +42,18 @@ class BiometricPromptUtils: IBiometricPrompt {
         return BiometricPrompt(activity, executor, callback)
     }
 
-    override fun createPromptInfo(activity: AppCompatActivity): BiometricPrompt.PromptInfo =
+    override fun createPromptInfo(
+        activity: AppCompatActivity,
+        useFacial: Boolean
+    ): BiometricPrompt.PromptInfo =
         BiometricPrompt.PromptInfo.Builder().apply {
             setTitle(activity.getString(R.string.prompt_info_title))
             setSubtitle(activity.getString(R.string.prompt_info_subtitle))
             setConfirmationRequired(false)
-//                setDeviceCredentialAllowed(true)//via facial
-            setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
+            if(useFacial) {
+                setDeviceCredentialAllowed(true)//via facial
+            } else {
+                setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
+            }
         }.build()
 }

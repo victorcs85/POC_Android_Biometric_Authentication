@@ -51,10 +51,17 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
     override fun onResume() {
         super.onResume()
 
-        if (cipherTextWrapper != null) {
-            if (SampleAppUser.fakeToken == null) {
+        /*val useFacial = SettingsUtils.getUseBiometricFacial(this)
+        if (useFacial) {
+            if(SampleAppUser.fakeToken == null) {
                 showBiometricPromptForDecryption()
+            } else {
+                callHome()
             }
+            return
+        }*/
+        if (cipherTextWrapper != null/* && !useFacial*/) {
+            showBiometricPromptByFakeToken()
         }
 
     }
@@ -108,6 +115,22 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
             }
         }
 
+        use_biometric_face?.let {
+            use_biometric_face.isChecked = SettingsUtils.getUseBiometricFacial(this)
+            it.setOnCheckedChangeListener { compoundButton, isChecked ->
+                cryptographyManager.clear(
+                    getString(R.string.secret_key_name),
+                    applicationContext,
+                    SHARED_PREFS_FILENAME,
+                    Context.MODE_PRIVATE
+                )
+                SettingsUtils.updateUseBiometricFacial(this, isChecked)
+                if(isChecked) {
+                    showAlertInfo(getString(R.string.how_to_facial))
+                }
+            }
+
+        }
     }
 
     override fun showUserError() {
@@ -132,19 +155,23 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
             true
         }
         R.id.action_info -> {
-            showAlertInfo()
+            showAlertInfo(null)
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun showAlertInfo() {
+    private fun showAlertInfo(message: String?) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.apply {
             setTitle(getString(R.string.alert_title))
-            setMessage(
-                getInfoResult().plus("\n").plus(getInfoIds())
-            )
+            if(message == null) {
+                setMessage(
+                    getInfoResult().plus("\n").plus(getInfoIds())
+                )
+            } else {
+                setMessage(message)
+            }
             setNeutralButton(getString(android.R.string.ok)) { _, _ -> }
         }
         val dialog: AlertDialog = builder.create()
@@ -173,15 +200,20 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
                             processError = ::logFirebaseErrorCode,
                             processFailed = {}
                         )
-                    val promptInfo = biometricPromptUtils.createPromptInfo(this@LoginActivity)
+                    val useFacial = SettingsUtils.getUseBiometricFacial(this)
+                    val promptInfo =
+                        biometricPromptUtils.createPromptInfo(this@LoginActivity, useFacial)
                     try {
-                        /*biometricPrompt.authenticate(
-                            promptInfo
-                        )*/ //via facial
-                        biometricPrompt.authenticate(
-                            promptInfo,
-                            BiometricPrompt.CryptoObject(cipher)
-                        )
+                        if (useFacial) {
+                            biometricPrompt.authenticate(
+                                promptInfo
+                            ) //via facial
+                        } else {
+                            biometricPrompt.authenticate(
+                                promptInfo,
+                                BiometricPrompt.CryptoObject(cipher)
+                            )
+                        }
                     } catch (e: Exception) {
                         Timber.e(e.toString())
                         firebaseUtils.logNonFatalLog(e)
@@ -235,7 +267,7 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         hideKeyboard(password)
     }
 
-    private fun encryptFakeToken(token: String, cipher: Cipher) {
+    private fun encryptFakeToken(token: String, cipher: Cipher) {//TODO
         val encryptedServerTokenWrapper = cryptographyManager.encryptData(token, cipher)
         cryptographyManager.persistCiphertextWrapperToSharedPrefs(
             encryptedServerTokenWrapper,
@@ -251,7 +283,7 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
     private fun checkShowBiometricLogin() {
         val canAuthenticate = BiometricManager.from(applicationContext).canAuthenticate()
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS &&
-            SettingsUtils.loadUseBiometricSettings(this@LoginActivity)
+            SettingsUtils.getUseBiometricSettings(this@LoginActivity)
         ) {
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder.apply {
@@ -272,24 +304,44 @@ class LoginActivity : BaseActivity(), ILoginContract.View {
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
             val secretKeyName = getString(R.string.secret_key_name)
             val cipher = cryptographyManager.getInitializedCipherForEncryption(secretKeyName)
-            biometricPromptUtils.createBiometricPrompt(this, processSuccess ={
+           /* biometricPromptUtils.createBiometricPrompt(this, processSuccess = {
                 encryptFakeToken(
                     secretKeyName,
                     cipher
                 )
-            }, processFailed = {}, processError = ::logFirebaseErrorCode)
-            val promptInfo = biometricPromptUtils.createPromptInfo(this)
-            biometricPrompt =
-                biometricPromptUtils.createBiometricPrompt(this,
-                    processSuccess = ::encryptAndStoreServerToken, processFailed = {},
-                    processError = ::logFirebaseErrorCode)
-//            biometricPrompt.authenticate(promptInfo) //via facial
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+            }, processFailed = {}, processError = ::logFirebaseErrorCode)*/
+            val useFacial = SettingsUtils.getUseBiometricFacial(this)
+            val promptInfo = biometricPromptUtils.createPromptInfo(this, useFacial)
+            if (useFacial) {
+                biometricPrompt =
+                    biometricPromptUtils.createBiometricPrompt(
+                        this,
+                        processSuccess = {
+                            showToast(getString(R.string.authenticated, SampleAppUser.fakeToken))
+                        }, processFailed = {},
+                        processError = ::logFirebaseErrorCode
+                    )
+                biometricPrompt.authenticate(promptInfo) //via facial
+            } else {
+                biometricPrompt =
+                    biometricPromptUtils.createBiometricPrompt(
+                        this,
+                        processSuccess = ::encryptAndStoreServerToken, processFailed = {},
+                        processError = ::logFirebaseErrorCode
+                    )
+                biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+            }
         }
     }
 
     private fun logFirebaseErrorCode(code: Int) {
         firebaseUtils.logNonFatalLog(code.toString())
+    }
+
+    private fun showBiometricPromptByFakeToken() {
+        if (SampleAppUser.fakeToken == null) {
+            showBiometricPromptForDecryption()
+        }
     }
 
     //test faceID - only on biometric 1.1.0-beta01, without work face id at 9.0

@@ -46,7 +46,6 @@ class HomeActivity : BaseActivity(), IHomeContract.View {
         return true
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_exit -> {
             cryptographyManager.clear(getString(R.string.secret_key_name),

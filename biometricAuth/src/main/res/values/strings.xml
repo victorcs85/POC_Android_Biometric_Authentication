@@ -15,4 +15,8 @@
     <string name="settings_on">Habilitar</string>
     <string name="settings_off">Desativar</string>
     <string name="settings_description">Deseja usar login por Biometria?</string>
+    <string name="settings_login_description">Deseja usar login por Biometria facial?</string>
+    <string name="how_to_facial">Como usar a Biometria facial?\n\nCadastre nas configurações de seu smartphone o seu rosto para desbloqueio (caso seu aparelho tenha a funcionalidade).\nApós o cadastro, verificar nas preferencias de biometria qual você quer prioridade, no caso de testar o login por face, dar prioridade ao facial.
+    </string>
+    <string name="authenticated">AUTENTICADO seu fake token: %1$s</string>
 </resources>
