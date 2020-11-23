@@ -52,6 +52,7 @@ class BiometricPromptUtils: IBiometricPrompt {
             setConfirmationRequired(false)
             if(useFacial) {
                 setDeviceCredentialAllowed(true)//via facial
+
             } else {
                 setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
             }

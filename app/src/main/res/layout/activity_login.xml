@@ -84,6 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/standard_padding"
                     android:showText="true"
+                    android:visibility="invisible"
                     android:textOn="@string/settings_on"
                     android:textOff="@string/settings_off"
                     android:text="@string/settings_login_description"
