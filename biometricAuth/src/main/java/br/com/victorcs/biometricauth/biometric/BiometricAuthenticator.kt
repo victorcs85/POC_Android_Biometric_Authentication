@@ -1,59 +1,69 @@
+package br.com.victorcs.biometricauth.biometric
 
 import android.content.Context
+import android.icu.text.CaseMap
 import android.os.Build
+import android.util.Log
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.husaynhakeem.biometricsample.R
-import com.husaynhakeem.biometricsample.crypto.CryptographyManager
-import com.husaynhakeem.biometricsample.crypto.EncryptedData
-import com.husaynhakeem.biometricsample.crypto.EncryptionMode
+import br.com.victorcs.biometricauth.data.crypto.EncryptedData
+import br.com.victorcs.biometricauth.data.crypto.EncryptionType
+import br.com.victorcs.biometricauth.data.crypto.ICryptographyManager
 
 abstract class BiometricAuthenticator(
     activity: FragmentActivity,
-    protected val listener: Listener
+    protected val listener: BiometricAuthenticatorListener,
+    protected val buildHelper: BiometricBuildHelper
 ) {
 
-    var showNegativeButton = false
     var isDeviceCredentialAuthenticationEnabled = false
     var isStrongAuthenticationEnabled = false
     var isWeakAuthenticationEnabled = false
     var showAuthenticationConfirmation = false
 
     /** Handle using biometrics + cryptography to encrypt/decrypt data securely */
-    protected val cryptographyManager = CryptographyManager.instance()
-    protected lateinit var encryptionMode: EncryptionMode
+    protected val cryptographyManager = ICryptographyManager.instance()
+    protected lateinit var encryptionType: EncryptionType
     protected lateinit var encryptedData: EncryptedData
+
+    private var title = buildHelper.title
+    private var subtitle: String? = buildHelper.subtitle
+    private var description: String? = buildHelper.description
+    private var btnCancelDescription: String? = buildHelper.btnCancelDescription
 
     /** Receives callbacks from an authentication operation */
     private val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-            listener.onNewMessage("Authentication succeeded")
+            listener.onLibMessageResponse("Authentication succeeded")
 
             val type = result.authenticationType
             val cryptoObject = result.cryptoObject
-            listener.onNewMessage("Type: ${getAuthenticationType(type)} - Crypto: $cryptoObject")
+            listener.onLibMessageResponse("Type: ${getAuthenticationType(type)} - Crypto: $cryptoObject")
 
             val cipher = cryptoObject?.cipher ?: return
-            when (encryptionMode) {
-                EncryptionMode.ENCRYPT -> {
+
+            when (encryptionType) {
+                EncryptionType.ENCRYPT -> {
                     encryptedData = cryptographyManager.encrypt(PAYLOAD, cipher)
-                    listener.onNewMessage("Encrypted text: ${encryptedData.encrypted}")
+//                    listener.onLibMessageResponse("Encrypted text: ${encryptedData.encrypted}")
+                    buildHelper.onAuthErrorAction.invoke()
                 }
-                EncryptionMode.DECRYPT -> {
+                EncryptionType.DECRYPT -> {
                     val plainData = cryptographyManager.decrypt(encryptedData.encrypted, cipher)
-                    listener.onNewMessage("Decrypted text: $plainData")
+//                    listener.onLibMessageResponse("Decrypted text: $plainData")
+                    buildHelper.onAuthErrorAction.invoke()
                 }
             }
         }
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-            listener.onNewMessage("Authentication error[${getBiometricError(errorCode)}] - $errString")
+            listener.onLibMessageResponse("Authentication error[${getBiometricError(errorCode)}] - $errString")
         }
 
         override fun onAuthenticationFailed() {
-            listener.onNewMessage("Authentication failed - Biometric is valid but not recognized")
+            listener.onLibMessageResponse("Authentication failed - Biometric is valid but not recognized")
         }
     }
 
@@ -61,7 +71,7 @@ abstract class BiometricAuthenticator(
     protected val biometricPrompt =
         BiometricPrompt(activity, ContextCompat.getMainExecutor(activity), authenticationCallback)
 
-    abstract fun canAuthenticate(context: Context)
+    abstract fun canAuthenticate(context: Context): Boolean
 
     fun authenticateWithoutCrypto(context: Context) {
         val promptInfo = buildPromptInfo(context) ?: return
@@ -81,9 +91,14 @@ abstract class BiometricAuthenticator(
     /** Build a [PromptInfo] that defines the properties of the biometric prompt dialog. */
     protected fun buildPromptInfo(context: Context): PromptInfo? {
         val builder = PromptInfo.Builder()
-            .setTitle(context.getString(R.string.prompt_title))
-            .setSubtitle(context.getString(R.string.prompt_subtitle))
-            .setDescription(context.getString(R.string.prompt_description))
+            .setTitle(title)
+
+        subtitle?.let {
+            builder.setSubtitle(it)
+        }
+        description?.let {
+            builder.setDescription(it)
+        }
 
         // Show a confirmation button after authentication succeeds
         builder.setConfirmationRequired(showAuthenticationConfirmation)
@@ -92,33 +107,48 @@ abstract class BiometricAuthenticator(
         setAllowedAuthenticators(builder)
 
         // Set a negative button. It would typically display "Cancel"
-        if (showNegativeButton) {
-            builder.setNegativeButtonText(context.getString(R.string.prompt_negative_text))
+        btnCancelDescription?.let {
+            builder.setNegativeButtonText(it)
         }
 
         return try {
             builder.build()
         } catch (exception: IllegalArgumentException) {
-            listener.onNewMessage("Building prompt info error - ${exception.message}")
+            Log.e(
+                BiometricAuthenticator::class.simpleName.orEmpty(),
+                "Building prompt info error - ${exception.message}"
+            )
             null
         }
-    }
-
-    interface Listener {
-        fun onNewMessage(message: String)
     }
 
     companion object {
         private const val PAYLOAD = "Biometrics sample"
 
-        fun instance(activity: FragmentActivity, listener: Listener): BiometricAuthenticator {
+        fun instance(
+            activity: FragmentActivity,
+            listener: BiometricAuthenticatorListener,
+            buildHelper: BiometricBuildHelper
+        ): BiometricAuthenticator {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                return BiometricAuthenticatorLegacy(activity, listener)
+                return BiometricAuthenticatorLegacy(
+                    activity,
+                    listener,
+                    buildHelper
+                )
             }
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                return BiometricAuthenticatorApi23(activity, listener)
+                return BiometricAuthenticatorApi23(
+                    activity,
+                    listener,
+                    buildHelper
+                )
             }
-            return BiometricAuthenticatorApi30(activity, listener)
+            return BiometricAuthenticatorApi30(
+                activity,
+                listener,
+                buildHelper
+            )
         }
     }
 }

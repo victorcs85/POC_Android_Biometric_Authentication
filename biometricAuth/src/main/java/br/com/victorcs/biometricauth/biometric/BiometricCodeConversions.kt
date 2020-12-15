@@ -1,4 +1,4 @@
-
+package br.com.victorcs.biometricauth.biometric
 import androidx.biometric.BiometricManager.*
 import androidx.biometric.BiometricPrompt.*
 

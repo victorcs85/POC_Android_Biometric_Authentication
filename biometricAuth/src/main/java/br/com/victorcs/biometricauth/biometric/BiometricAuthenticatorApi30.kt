@@ -1,3 +1,4 @@
+package br.com.victorcs.biometricauth.biometric
 
 import android.content.Context
 import android.hardware.biometrics.BiometricManager.Authenticators.*
@@ -7,16 +8,25 @@ import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import com.husaynhakeem.biometricsample.crypto.EncryptionMode
+import br.com.victorcs.biometricauth.data.crypto.EncryptionType
 
 @RequiresApi(Build.VERSION_CODES.R)
-class BiometricAuthenticatorApi30(activity: FragmentActivity, listener: Listener) :
-    BiometricAuthenticator(activity, listener) {
+class BiometricAuthenticatorApi30(
+    activity: FragmentActivity,
+    listener: BiometricAuthenticatorListener,
+    buildHelper: BiometricBuildHelper
+) :
+    BiometricAuthenticator(
+        activity,
+        listener,
+        buildHelper
+    ) {
 
-    override fun canAuthenticate(context: Context) {
+    override fun canAuthenticate(context: Context): Boolean {
         val biometricManager = BiometricManager.from(context)
         val canAuthenticate = biometricManager.canAuthenticate(getAuthenticationTypes())
-        listener.onNewMessage(getBiometricAvailability(canAuthenticate))
+        listener.onLibMessageResponse(getBiometricAvailability(canAuthenticate))
+        return true.takeIf { canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS } ?: false
     }
 
     override fun authenticateAndEncrypt(context: Context) {
@@ -28,12 +38,12 @@ class BiometricAuthenticatorApi30(activity: FragmentActivity, listener: Listener
         cryptographyManager.setSecretKeyType(getSecretKeyType())
         val cipher = cryptographyManager.getCipherForEncryption()
         val crypto = BiometricPrompt.CryptoObject(cipher)
-        encryptionMode = EncryptionMode.ENCRYPT
+        encryptionType = EncryptionType.ENCRYPT
 
         try {
             biometricPrompt.authenticate(promptInfo, crypto)
         } catch (exception: IllegalArgumentException) {
-            listener.onNewMessage("Authentication with crypto error - ${exception.message}")
+            listener.onLibMessageResponse("Authentication with crypto error - ${exception.message}")
         }
     }
 
@@ -45,12 +55,12 @@ class BiometricAuthenticatorApi30(activity: FragmentActivity, listener: Listener
         val promptInfo = buildPromptInfo(context) ?: return
         val cipher = cryptographyManager.getCipherForDecryption(encryptedData.initializationVector)
         val crypto = BiometricPrompt.CryptoObject(cipher)
-        encryptionMode = EncryptionMode.DECRYPT
+        encryptionType = EncryptionType.DECRYPT
 
         try {
             biometricPrompt.authenticate(promptInfo, crypto)
         } catch (exception: IllegalArgumentException) {
-            listener.onNewMessage("Authentication with crypto error - ${exception.message}")
+            listener.onLibMessageResponse("Authentication with crypto error - ${exception.message}")
         }
     }
 
@@ -74,7 +84,7 @@ class BiometricAuthenticatorApi30(activity: FragmentActivity, listener: Listener
 
     private fun canAuthenticateWithCrypto(): Boolean {
         if (getSecretKeyType() and KeyProperties.AUTH_BIOMETRIC_STRONG == 0) {
-            listener.onNewMessage(
+            listener.onLibMessageResponse(
                 "Authentication type must be strong to authenticate with crypto" +
                         " on API levels >= 30"
             )

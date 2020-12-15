@@ -46,6 +46,7 @@ dependencies {
     implementation deps.timber
 
     implementation deps.android_design
+    implementation deps.android_material
 
     implementation deps.firebase_crashlytics
     implementation deps.firebase_analytics

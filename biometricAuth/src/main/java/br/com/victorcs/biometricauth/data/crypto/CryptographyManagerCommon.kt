@@ -1,3 +1,4 @@
+package br.com.victorcs.biometricauth.data.crypto
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
@@ -10,7 +11,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 @RequiresApi(Build.VERSION_CODES.M)
-abstract class CryptographyManagerCommon : CryptographyManager {
+abstract class CryptographyManagerCommon : ICryptographyManager {
 
     protected var keyType: Int = INVALID_KEY_TYPE
         get() {
@@ -107,7 +108,7 @@ abstract class CryptographyManagerCommon : CryptographyManager {
     companion object {
         private const val INVALID_KEY_TYPE = -1
         private const val KEY_PROVIDER = "AndroidKeyStore"
-        private const val KEY_ALIAS = "key-biometric-sample"
+        private const val KEY_ALIAS = "key-biometric-android"
         private const val TRANSFORMATION =
             "${KeyProperties.KEY_ALGORITHM_AES}/${KeyProperties.BLOCK_MODE_GCM}/${KeyProperties.ENCRYPTION_PADDING_NONE}"
     }

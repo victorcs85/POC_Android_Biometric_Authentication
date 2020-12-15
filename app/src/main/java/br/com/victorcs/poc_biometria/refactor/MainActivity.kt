@@ -1,14 +1,11 @@
+package br.com.victorcs.poc_biometria.refactor
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.husaynhakeem.biometricsample.biometric.BiometricAuthenticator
-import kotlinx.android.synthetic.main.layout_authenticate.*
-import kotlinx.android.synthetic.main.layout_authentication_confirmation.*
-import kotlinx.android.synthetic.main.layout_authenticator_types.*
-import kotlinx.android.synthetic.main.layout_configuration_change.*
-import kotlinx.android.synthetic.main.layout_logging.*
-import kotlinx.android.synthetic.main.layout_negative_button.*
+import br.com.victorcs.biometricauth.biometric.BiometricAuthenticator
+import br.com.victorcs.biometricauth.biometric.BiometricAuthenticatorListener
+import br.com.victorcs.biometricauth.biometric.BiometricBuildHelper
 
 
 class MainActivity : AppCompatActivity() {
@@ -17,16 +14,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         biometricAuthenticator =
-            BiometricAuthenticator.instance(this, object : BiometricAuthenticator.Listener {
-                override fun onNewMessage(message: String) {
+            BiometricAuthenticator.instance(this, object : BiometricAuthenticatorListener {
+                override fun onLibMessageResponse(message: String) {
                     log(message)
                 }
-            })
+            },
+                BiometricBuildHelper(
+                    title = "Title",
+                    subtitle = "Subtitle",
+                    description = "Description",
+                    btnCancelDescription = "Cancel",
+                    onAuthErrorAction = {},
+                    onAuthFailureAction = {},
+                    onAuthSuccessAction = {}
+                )
+            )
 
-        canAuthenticate.setOnClickListener { biometricAuthenticator.canAuthenticate(this) }
+/*        canAuthenticate.setOnClickListener { biometricAuthenticator.canAuthenticate(this) }
         authenticate.setOnClickListener { biometricAuthenticator.authenticateWithoutCrypto(this) }
         authenticateEncrypt.setOnClickListener { biometricAuthenticator.authenticateAndEncrypt(this) }
         authenticateDecrypt.setOnClickListener { biometricAuthenticator.authenticateAndDecrypt(this) }
@@ -56,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         biometricAuthenticator.showNegativeButton = negativeButton.isChecked
         biometricAuthenticator.showAuthenticationConfirmation = authenticationConfirmation.isChecked
 
-        clearLogs.setOnClickListener { clearLogs() }
+        clearLogs.setOnClickListener { clearLogs() }*/
     }
 
     override fun onStop() {
@@ -67,16 +73,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun keepAuthenticationDialogOnConfigurationChange(): Boolean {
-        return configurationChange.isChecked
+//        return configurationChange.isChecked
+        return false
     }
 
     @SuppressLint("SetTextI18n")
     private fun log(message: String) {
-        val currentLogs = logs.text.toString()
-        logs.text = "$message\n$currentLogs"
+//        val currentLogs = logs.text.toString()
+//        logs.text = "$message\n$currentLogs"
     }
 
     private fun clearLogs() {
-        logs.text = ""
+//        logs.text = ""
     }
 }

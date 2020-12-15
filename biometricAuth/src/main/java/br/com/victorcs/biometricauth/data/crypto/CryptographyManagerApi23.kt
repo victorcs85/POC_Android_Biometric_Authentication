@@ -1,3 +1,4 @@
+package br.com.victorcs.biometricauth.data.crypto
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec

@@ -1,7 +1,8 @@
+package br.com.victorcs.biometricauth.data.crypto
 
 import javax.crypto.Cipher
 
-class CryptographyManagerLegacy : CryptographyManager {
+class CryptographyManagerLegacy : ICryptographyManager {
 
     override fun canUseCrypto() = false
 
